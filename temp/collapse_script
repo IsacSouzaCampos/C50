@@ -1,0 +1,1 @@
+read_pla Benchmarks/alu4.pla; collapse; write_pla -m temp/temp.pla
