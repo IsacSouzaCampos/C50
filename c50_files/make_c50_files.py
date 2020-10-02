@@ -1,7 +1,7 @@
 import numpy as np
 import os
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier
+# from sklearn.tree import DecisionTreeClassifier
+# from sklearn.ensemble import RandomForestClassifier
 
 
 class MakeC50Files:
@@ -26,6 +26,8 @@ class MakeC50Files:
 		with open('temp/temp.pla', 'r') as fin:
 			temp_pla = fin.read()
 			for _line in temp_pla.splitlines():
+				if '.i' in _line and int(_line.split()[1]) > 16:
+					raise Exception('Numero de inputs superior a 16')
 				if '.o' in _line:
 					number_of_outputs = int(_line.split()[1])
 					break

@@ -1,0 +1,488 @@
+
+C5.0 [Release 2.07 GPL Edition]  	Fri Oct  2 12:40:40 2020
+-------------------------------
+
+    Options:
+	Rule-based classifiers
+	Application `c50_files/files/misex3_out_8'
+
+Class specified by attribute `Fout'
+
+Read 16384 cases (15 attributes) from c50_files/files/misex3_out_8.data
+
+Rules:
+
+Rule 1: (2048, lift 1.0)
+	X2 = 0
+	X7 = 0
+	X8 = 1
+	->  class 0  [1.000]
+
+Rule 2: (2048, lift 1.0)
+	X2 = 0
+	X7 = 1
+	X8 = 0
+	->  class 0  [1.000]
+
+Rule 3: (2048, lift 1.0)
+	X2 = 0
+	X7 = 1
+	X11 = 0
+	->  class 0  [1.000]
+
+Rule 4: (2048, lift 1.0)
+	X2 = 0
+	X5 = 0
+	X6 = 1
+	->  class 0  [1.000]
+
+Rule 5: (4096, lift 1.0)
+	X2 = 0
+	X12 = 1
+	->  class 0  [1.000]
+
+Rule 6: (4096, lift 1.0)
+	X2 = 0
+	X3 = 1
+	->  class 0  [1.000]
+
+Rule 7: (4096, lift 1.0)
+	X2 = 1
+	X12 = 0
+	->  class 0  [1.000]
+
+Rule 8: (2048, lift 1.0)
+	X0 = 0
+	X1 = 0
+	X2 = 1
+	->  class 0  [1.000]
+
+Rule 9: (2048, lift 1.0)
+	X2 = 1
+	X6 = 0
+	X7 = 0
+	->  class 0  [1.000]
+
+Rule 10: (2048, lift 1.0)
+	X0 = 0
+	X3 = 1
+	X4 = 0
+	->  class 0  [1.000]
+
+Rule 11: (8192, lift 1.0)
+	X13 = 1
+	->  class 0  [1.000]
+
+Rule 12: (1024, lift 1.0)
+	X2 = 0
+	X5 = 0
+	X7 = 0
+	X10 = 1
+	->  class 0  [0.999]
+
+Rule 13: (1024, lift 1.0)
+	X2 = 0
+	X5 = 0
+	X7 = 0
+	X11 = 1
+	->  class 0  [0.999]
+
+Rule 14: (1024, lift 1.0)
+	X2 = 0
+	X5 = 0
+	X7 = 1
+	X9 = 0
+	->  class 0  [0.999]
+
+Rule 15: (1024, lift 1.0)
+	X2 = 0
+	X5 = 0
+	X7 = 1
+	X10 = 0
+	->  class 0  [0.999]
+
+Rule 16: (1024, lift 1.0)
+	X0 = 0
+	X2 = 1
+	X4 = 0
+	X5 = 0
+	->  class 0  [0.999]
+
+Rule 17: (1024, lift 1.0)
+	X2 = 1
+	X6 = 0
+	X10 = 0
+	X11 = 0
+	->  class 0  [0.999]
+
+Rule 18: (1024, lift 1.0)
+	X2 = 1
+	X6 = 0
+	X9 = 1
+	X10 = 0
+	->  class 0  [0.999]
+
+Rule 19: (1024, lift 1.0)
+	X7 = 0
+	X8 = 0
+	X9 = 0
+	X11 = 1
+	->  class 0  [0.999]
+
+Rule 20: (1024, lift 1.0)
+	X1 = 0
+	X2 = 1
+	X4 = 0
+	X5 = 0
+	->  class 0  [0.999]
+
+Rule 21: (4096/8, lift 1.0)
+	X2 = 0
+	X5 = 1
+	->  class 0  [0.998]
+
+Rule 22: (512, lift 1.0)
+	X0 = 1
+	X1 = 1
+	X2 = 1
+	X3 = 0
+	X4 = 0
+	->  class 0  [0.998]
+
+Rule 23: (512, lift 1.0)
+	X0 = 1
+	X1 = 1
+	X3 = 1
+	X4 = 1
+	X5 = 1
+	->  class 0  [0.998]
+
+Rule 24: (1024/12, lift 1.0)
+	X0 = 0
+	X6 = 1
+	X9 = 0
+	X10 = 0
+	->  class 0  [0.987]
+
+Rule 25: (2048/36, lift 1.0)
+	X6 = 1
+	X9 = 0
+	X10 = 0
+	->  class 0  [0.982]
+
+Rule 26: (32, lift 29.2)
+	X0 = 0
+	X1 = 1
+	X2 = 1
+	X4 = 1
+	X6 = 0
+	X7 = 1
+	X10 = 1
+	X12 = 1
+	X13 = 0
+	->  class 1  [0.971]
+
+Rule 27: (32, lift 29.2)
+	X0 = 0
+	X1 = 1
+	X2 = 1
+	X4 = 1
+	X7 = 1
+	X9 = 0
+	X10 = 1
+	X12 = 1
+	X13 = 0
+	->  class 1  [0.971]
+
+Rule 28: (32, lift 29.2)
+	X0 = 1
+	X1 = 0
+	X2 = 1
+	X5 = 1
+	X6 = 0
+	X7 = 1
+	X10 = 1
+	X12 = 1
+	X13 = 0
+	->  class 1  [0.971]
+
+Rule 29: (32, lift 29.2)
+	X0 = 1
+	X2 = 1
+	X3 = 0
+	X4 = 1
+	X6 = 0
+	X7 = 1
+	X10 = 1
+	X12 = 1
+	X13 = 0
+	->  class 1  [0.971]
+
+Rule 30: (32, lift 29.2)
+	X0 = 1
+	X2 = 1
+	X4 = 1
+	X5 = 0
+	X6 = 0
+	X7 = 1
+	X10 = 1
+	X12 = 1
+	X13 = 0
+	->  class 1  [0.971]
+
+Rule 31: (16, lift 28.4)
+	X0 = 0
+	X1 = 1
+	X2 = 1
+	X4 = 1
+	X6 = 1
+	X9 = 0
+	X10 = 1
+	X11 = 0
+	X12 = 1
+	X13 = 0
+	->  class 1  [0.944]
+
+Rule 32: (16, lift 28.4)
+	X0 = 0
+	X1 = 1
+	X2 = 1
+	X4 = 1
+	X6 = 1
+	X8 = 1
+	X9 = 0
+	X10 = 1
+	X12 = 1
+	X13 = 0
+	->  class 1  [0.944]
+
+Rule 33: (16, lift 28.4)
+	X0 = 0
+	X1 = 1
+	X2 = 1
+	X4 = 1
+	X6 = 0
+	X7 = 1
+	X9 = 0
+	X11 = 1
+	X12 = 1
+	X13 = 0
+	->  class 1  [0.944]
+
+Rule 34: (16, lift 28.4)
+	X0 = 1
+	X1 = 1
+	X2 = 1
+	X3 = 1
+	X4 = 0
+	X6 = 0
+	X7 = 1
+	X10 = 1
+	X12 = 1
+	X13 = 0
+	->  class 1  [0.944]
+
+Rule 35: (16, lift 28.4)
+	X2 = 0
+	X3 = 0
+	X5 = 0
+	X6 = 0
+	X7 = 0
+	X8 = 0
+	X10 = 0
+	X11 = 0
+	X12 = 0
+	X13 = 0
+	->  class 1  [0.944]
+
+Rule 36: (8, lift 27.1)
+	X2 = 0
+	X3 = 0
+	X5 = 0
+	X6 = 0
+	X7 = 1
+	X8 = 1
+	X9 = 1
+	X10 = 1
+	X11 = 1
+	X12 = 0
+	X13 = 0
+	->  class 1  [0.900]
+
+Rule 37: (32/4, lift 25.7)
+	X0 = 1
+	X2 = 1
+	X3 = 0
+	X4 = 1
+	X6 = 1
+	X9 = 0
+	X10 = 1
+	X12 = 1
+	X13 = 0
+	->  class 1  [0.853]
+
+Rule 38: (32/4, lift 25.7)
+	X0 = 1
+	X2 = 1
+	X4 = 1
+	X5 = 0
+	X6 = 1
+	X9 = 0
+	X10 = 1
+	X12 = 1
+	X13 = 0
+	->  class 1  [0.853]
+
+Rule 39: (16/2, lift 25.1)
+	X0 = 1
+	X1 = 1
+	X2 = 1
+	X3 = 1
+	X4 = 0
+	X6 = 1
+	X9 = 0
+	X10 = 1
+	X12 = 1
+	X13 = 0
+	->  class 1  [0.833]
+
+Rule 40: (64/12, lift 24.2)
+	X0 = 0
+	X1 = 1
+	X2 = 1
+	X4 = 1
+	X6 = 1
+	X9 = 1
+	X12 = 1
+	X13 = 0
+	->  class 1  [0.803]
+
+Rule 41: (64/12, lift 24.2)
+	X0 = 1
+	X2 = 1
+	X3 = 0
+	X4 = 1
+	X6 = 1
+	X9 = 1
+	X12 = 1
+	X13 = 0
+	->  class 1  [0.803]
+
+Rule 42: (64/12, lift 24.2)
+	X0 = 1
+	X2 = 1
+	X4 = 1
+	X5 = 0
+	X6 = 1
+	X9 = 1
+	X12 = 1
+	X13 = 0
+	->  class 1  [0.803]
+
+Rule 43: (32/6, lift 23.9)
+	X0 = 1
+	X1 = 1
+	X2 = 1
+	X3 = 1
+	X4 = 0
+	X6 = 1
+	X9 = 1
+	X12 = 1
+	X13 = 0
+	->  class 1  [0.794]
+
+Rule 44: (128/40, lift 20.6)
+	X0 = 1
+	X1 = 0
+	X2 = 1
+	X5 = 1
+	X6 = 1
+	X12 = 1
+	X13 = 0
+	->  class 1  [0.685]
+
+Rule 45: (64/20, lift 20.5)
+	X0 = 1
+	X2 = 1
+	X6 = 0
+	X7 = 1
+	X9 = 0
+	X11 = 1
+	X12 = 1
+	X13 = 0
+	->  class 1  [0.682]
+
+Rule 46: (64/20, lift 20.5)
+	X0 = 0
+	X1 = 1
+	X2 = 1
+	X3 = 0
+	X5 = 1
+	X7 = 1
+	X12 = 1
+	X13 = 0
+	->  class 1  [0.682]
+
+Rule 47: (64/20, lift 20.5)
+	X0 = 0
+	X1 = 1
+	X2 = 1
+	X3 = 0
+	X5 = 1
+	X6 = 1
+	X12 = 1
+	X13 = 0
+	->  class 1  [0.682]
+
+Default class: 0
+
+
+Evaluation on training data (16384 cases):
+
+	        Rules     
+	  ----------------
+	    No      Errors
+
+	    47   91( 0.6%)   <<
+
+
+	   (a)   (b)    <-classified as
+	  ----  ----
+	 15789    51    (a): class 0
+	    40   504    (b): class 1
+
+
+	Attribute usage:
+
+	     94%  X2
+	     60%  X5
+	     55%  X7
+	     54%  X12
+	     54%  X13
+	     43%  X6
+	     38%  X3
+	     37%  X0
+	     34%  X10
+	     31%  X8
+	     30%  X11
+	     30%  X9
+	     27%  X4
+	     24%  X1
+
+
+Evaluation on test data (16384 cases):
+
+	        Rules     
+	  ----------------
+	    No      Errors
+
+	    47   91( 0.6%)   <<
+
+
+	   (a)   (b)    <-classified as
+	  ----  ----
+	 15789    51    (a): class 0
+	    40   504    (b): class 1
+
+
+Time: 0.3 secs

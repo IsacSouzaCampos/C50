@@ -1,0 +1,1 @@
+&r sop/aig/ex5_out_35.aig; &ps; &mltest temp/temp_out_35.pla

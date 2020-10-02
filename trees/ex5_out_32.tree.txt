@@ -1,0 +1,104 @@
+
+C5.0 [Release 2.07 GPL Edition]  	Fri Oct  2 12:40:33 2020
+-------------------------------
+
+    Options:
+	Rule-based classifiers
+	Application `c50_files/files/ex5_out_32'
+
+Class specified by attribute `Fout'
+
+Read 256 cases (9 attributes) from c50_files/files/ex5_out_32.data
+
+Rules:
+
+Rule 1: (8, lift 12.1)
+	X0 = 1
+	X1 = 0
+	X2 = 0
+	X4 = 1
+	X5 = 1
+	->  class 0  [0.900]
+
+Rule 2: (8, lift 12.1)
+	X0 = 0
+	X1 = 0
+	X2 = 1
+	X3 = 1
+	X4 = 1
+	->  class 0  [0.900]
+
+Rule 3: (128, lift 1.1)
+	X1 = 1
+	->  class 1  [0.992]
+
+Rule 4: (64, lift 1.1)
+	X2 = 1
+	X3 = 0
+	->  class 1  [0.985]
+
+Rule 5: (64, lift 1.1)
+	X0 = 1
+	X2 = 1
+	->  class 1  [0.985]
+
+Rule 6: (32, lift 1.0)
+	X0 = 0
+	X2 = 0
+	X4 = 1
+	->  class 1  [0.971]
+
+Rule 7: (32, lift 1.0)
+	X0 = 1
+	X4 = 1
+	X5 = 0
+	->  class 1  [0.971]
+
+Rule 8: (128/3, lift 1.0)
+	X4 = 0
+	->  class 1  [0.969]
+
+Default class: 1
+
+
+Evaluation on training data (256 cases):
+
+	        Rules     
+	  ----------------
+	    No      Errors
+
+	     8    3( 1.2%)   <<
+
+
+	   (a)   (b)    <-classified as
+	  ----  ----
+	    16     3    (a): class 0
+	         237    (b): class 1
+
+
+	Attribute usage:
+
+	     81%  X4
+	     56%  X1
+	     56%  X2
+	     50%  X0
+	     28%  X3
+	     16%  X5
+
+
+Evaluation on test data (256 cases):
+
+	        Rules     
+	  ----------------
+	    No      Errors
+
+	     8    3( 1.2%)   <<
+
+
+	   (a)   (b)    <-classified as
+	  ----  ----
+	    16     3    (a): class 0
+	         237    (b): class 1
+
+
+Time: 0.0 secs
