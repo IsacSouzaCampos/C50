@@ -1,6 +1,0 @@
-ABC command line: "source -x temp/mltest_script".
-
-abc - > &r sop/aig/ex5_out_35.aig; &ps; &mltest temp/temp_out_35.pla
-[1;37msop/aig/ex5_out_35[0m : i/o =      8/      1  [1;36mand =      12[0m  [1;35mlev =    6[0m [1;35m(6.00)[0m  mem = 0.00 MB
-Finished reading 256 simulation patterns for 8 inputs. Probability of 1 at the output is  92.19 %.
-Total =    256.  Errors =      0.  Correct =    256.  (100.00 %)   Naive guess =    236.  ( 92.19 %)

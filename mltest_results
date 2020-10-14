@@ -1,4 +1,0 @@
-pos/aig/alu4_out_0 : i/o =     14/      1  and =     135  lev =   34 (34.00)  mem = 0.00 MB
-Finished reading 16384 simulation patterns for 14 inputs. Probability of 1 at the output is  57.62 %.
-Total =  16384.  Errors =      0.  Correct =  16384.  (100.00 %)   Naive guess =   9440.  ( 57.62 %)
-

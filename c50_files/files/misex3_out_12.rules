@@ -1,7 +1,0 @@
-id="See5/C5.0 2.07 GPL Edition 2020-10-02"
-entries="1"
-rules="2" default="0"
-conds="1" cover="8192" ok="8169" lift="1.00221" class="0"
-type="1" att="X5" val="1"
-conds="1" cover="8192" ok="8131" lift="0.997548" class="0"
-type="1" att="X5" val="0"

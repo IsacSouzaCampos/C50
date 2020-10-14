@@ -1,3 +1,0 @@
-read_eqn sop/ex5_out_35.eqn
-strash
-write_aiger sop/aig/ex5_out_35.aig
