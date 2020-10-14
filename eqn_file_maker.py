@@ -2,11 +2,19 @@ import os
 
 
 class EqnFileMaker(object):
-    def __init__(self, eqn_type='pos'):
-        # self.benchmark_type = benchmark_type
+    def __init__(self, eqn_type: str = 'pos'):
         self.eqn_type = eqn_type
 
-    def make_eqn_files(self):
+    def make_aig(self):
+        eqn_paths = self.make_eqn_files()
+        aig_paths = []
+        for path in eqn_paths:
+            aig_paths.append(self.make_aig_from_eqn(path))
+        for path in aig_paths:
+            self.extract_data(path)
+
+    def make_eqn_files(self) -> list:
+        paths = []
         for path in os.listdir('trees/'):
             if '.tree' in path:
                 input_path = str(f'trees/{path}')
@@ -21,9 +29,10 @@ class EqnFileMaker(object):
             if remove:
                 os.system(f'rm {output_path}')
 
-            self.make_aig_from_eqn(path.replace('tree.txt', 'eqn'))
+            paths.append(path.replace('tree.txt', 'eqn'))
+        return paths
 
-    def generate_logic(self, input_path, output_path):
+    def generate_logic(self, input_path: str, output_path: str):
         symbols = []
         if 'sop' in self.eqn_type:
             symbols.append('+')
@@ -71,19 +80,11 @@ class EqnFileMaker(object):
                     inputs.clear()
                     bits.clear()
 
-            # flag = False
-            # if not logic_equation:  # empty string
-            #     logic_equation += '1.'
-            #     flag = True
-
             logic_equation = logic_equation[:len(logic_equation) - 1]
             logic_equation += ';'
             output_file = open(output_path, 'w+')
             output_file.write(header + logic_equation)
             output_file.close()
-
-            # if flag:
-            #     self.test_constant_outputs_accuracy(output_path)
 
     # def unite_eqn(self, ex):  # file_type = 'original' | 'non_redundant'
     #     header = ''
@@ -142,7 +143,7 @@ class EqnFileMaker(object):
     #     output_file.close()
 
     @staticmethod
-    def make_aig_from_pla(dir_path):
+    def make_aig_from_pla(dir_path: str):
         for path in os.listdir(dir_path):
             if '.eqn' in path:
                 new_file = str('espresso_script_automation/reduced_benchmarks_aig/' + path[:4] + '.train.aig')
@@ -157,23 +158,23 @@ class EqnFileMaker(object):
                 mltest_result.close()
                 os.system('./abc -c \'source pla_script.scr\' >> espresso_script_automation/mltest_result.txt')
 
-    def make_aig_from_eqn(self, path):
+    def make_aig_from_eqn(self, path: str) -> str:
         if '.eqn' in path:
             with open('temp/make_aig_from_eqn_script', 'w') as fout:
                 print(f'read_eqn {self.eqn_type}/{path}', file=fout)
                 print('strash', file=fout)
                 print(f'write_aiger {self.eqn_type}/aig/{path.replace("eqn", "aig")}', file=fout)
             os.system('./abc -F temp/make_aig_from_eqn_script')
-            self.extract_data(path.replace('eqn', 'aig'))
+        return path.replace('eqn', 'aig')
 
-    def extract_data(self, path):
+    def extract_data(self, path: str):
         with open('temp/mltest_script', 'w') as fout:
             output_number = ''
-            if path[-5].isnumeric():
-                if path[-6].isnumeric():
-                    output_number = path[-6] + path[-5]
-                else:
-                    output_number = path[-5]
+            aux = path.find('out_') + 4
+            if path[aux].isnumeric() and path[aux+1].isnumeric():
+                output_number = path[aux] + path[aux+1]
+            else:
+                output_number = path[aux + 4]
             print(f'&r {self.eqn_type}/aig/{path}; &ps; &mltest temp/temp_out_{output_number}.pla', file=fout)
 
         file = open('temp/mltest_results', 'w')
@@ -183,18 +184,26 @@ class EqnFileMaker(object):
         table_results = []
 
         try:
-            with open(f'{self.eqn_type}_table_results', 'r') as fin:
+            aux = path.find('m_') + 2
+            m_number = ''
+            while path[aux].isnumeric():
+                m_number += path[aux]
+                aux += 1
+            with open(f'{self.eqn_type}_table_m' + m_number + '_results', 'r') as fin:
                 table_results = fin.readlines()
         except Exception as e:
             print(e)
 
         try:
-            with open(f'{self.eqn_type}_table_results', 'w') as fout, open('temp/mltest_results', 'r') as fin:
+            with open(f'{self.eqn_type}_table_m' + m_number + '_results', 'w') as fout,\
+                    open('temp/mltest_results', 'r') as fin:
                 mltest_lines = fin.readlines()
                 try:
                     ands = mltest_lines[3].split()[8][:-4]
                     levs = mltest_lines[3].split()[11][:-4]
                     acc = mltest_lines[5].split()[9].replace('(', '')
+                    if acc == '':
+                        acc = mltest_lines[5].split()[10]
                     results = f'{path}\t{ands}\t{levs}\t{acc}'
                     table_results.append(results + '\n')
                 except Exception as e:

@@ -9,12 +9,11 @@ def main():
 
     make_c50_files.MakeC50Files().run_make_files()
 
-    tree_maker.TreeMaker('c50_files/files').make_tree()
+    m = ['15', '30', '50', '100']
+    tree_maker.TreeMaker('c50_files/files').make_tree(m)
 
-    eqn_file_maker.EqnFileMaker('pos').make_eqn_files()
-    eqn_file_maker.EqnFileMaker('sop').make_eqn_files()
-
-    # eqn_file_maker.EqnFileMaker('sop').generate_logic('table3_out_8.tree.txt', 'table3_out_8.eqn')
+    eqn_file_maker.EqnFileMaker('pos').make_aig()
+    eqn_file_maker.EqnFileMaker('sop').make_aig()
 
 
 if __name__ == '__main__':
