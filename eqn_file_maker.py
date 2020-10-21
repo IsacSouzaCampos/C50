@@ -3,10 +3,18 @@ import os
 
 class EqnFileMaker(object):
     def __init__(self, eqn_type='pos'):
-        # self.benchmark_type = benchmark_type
         self.eqn_type = eqn_type
 
+    def make_aig(self):
+        eqn_paths = self.make_eqn_files()
+        aig_paths = []
+        for path in eqn_paths:
+            aig_paths.append(self.make_aig_from_eqn(path))
+        for path in aig_paths:
+            self.extract_data(path)
+
     def make_eqn_files(self):
+        paths = []
         for path in os.listdir('trees/'):
             if '.tree' in path:
                 input_path = str(f'trees/{path}')
@@ -21,7 +29,8 @@ class EqnFileMaker(object):
             if remove:
                 os.system(f'rm {output_path}')
 
-            self.make_aig_from_eqn(path.replace('tree.txt', 'eqn'))
+            paths.append(path.replace('tree.txt', 'eqn'))
+        return paths
 
     def generate_logic(self, input_path, output_path):
         symbols = []
@@ -164,7 +173,7 @@ class EqnFileMaker(object):
                 print('strash', file=fout)
                 print(f'write_aiger {self.eqn_type}/aig/{path.replace("eqn", "aig")}', file=fout)
             os.system('./abc -F temp/make_aig_from_eqn_script')
-            self.extract_data(path.replace('eqn', 'aig'))
+            return path.replace('eqn', 'aig')
 
     def extract_data(self, path):
         with open('temp/mltest_script', 'w') as fout:
@@ -205,3 +214,4 @@ class EqnFileMaker(object):
                     fout.writelines(table_results)
         except Exception as e:
             print(e)
+
