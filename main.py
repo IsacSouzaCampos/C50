@@ -2,6 +2,7 @@ import tree_maker
 import eqn_file_maker
 from c50_files import make_c50_files
 import clear
+import os
 
 
 def main():
@@ -11,7 +12,9 @@ def main():
 
     tree_maker.TreeMaker('c50_files/files').make_tree()
 
-    eqn_file_maker.EqnFileMaker('sop').make_aig()
+    for path in os.listdir('trees'):
+        print(path)
+        eqn_file_maker.EqnFileMaker(path).make_aig()
 
 
 if __name__ == '__main__':
