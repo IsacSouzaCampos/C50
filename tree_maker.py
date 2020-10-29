@@ -9,13 +9,13 @@ class TreeMaker(object):
         for file_name in os.listdir(self.c50_files_path):
             if '.data' in file_name:
                 base_name = file_name.replace('.data', '')
-                print('./c5.0 -r -f ' + self.c50_files_path + '/' + base_name + ' > trees/' + base_name + '.tree.txt')
-                os.system('./c5.0 -r -f ' + self.c50_files_path + '/' + base_name + ' > trees/' + base_name +
+                print('./c5.0 -f ' + self.c50_files_path + '/' + base_name + ' > trees/' + base_name + '.tree.txt')
+                os.system('./c5.0 -f ' + self.c50_files_path + '/' + base_name + ' > trees/' + base_name +
                           '.tree.txt')
                 remove = False
                 with open('trees/' + base_name + '.tree.txt') as fin:
                     lines = fin.readlines()
-                    if int(lines[10].split()[1]) < 64:
+                    if int(lines[9].split()[1]) < 64:
                         remove = True
                 if remove:
                     os.system('rm trees/' + base_name + '.tree.txt')

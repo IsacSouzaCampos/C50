@@ -89,7 +89,6 @@ class MakeC50Files:
 
 					train_data = np.array(train_data)
 					test_data = np.array(test_data)
-					print(train_data)
 					np.savetxt('c50_files/files/'+c50f_data_final_name, train_data, fmt='%c', delimiter=',')
 					np.savetxt('c50_files/files/'+c50f_test_final_name, test_data, fmt='%c', delimiter=',')
 					self.save_names_file(nfeat=train_data.shape[1]-1, filename='c50_files/files/'+c50f_names_final_name)

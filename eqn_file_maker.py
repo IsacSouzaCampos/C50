@@ -2,16 +2,13 @@ import os
 
 
 class EqnFileMaker(object):
-    def __init__(self, eqn_type='pos'):
+    def __init__(self, eqn_type='sop'):
         self.eqn_type = eqn_type
 
     def make_aig(self):
         eqn_paths = self.make_eqn_files()
-        aig_paths = []
         for path in eqn_paths:
-            aig_paths.append(self.make_aig_from_eqn(path))
-        for path in aig_paths:
-            self.extract_data(path)
+            self.extract_data(self.make_aig_from_eqn(path))
 
     def make_eqn_files(self):
         paths = []
@@ -32,7 +29,7 @@ class EqnFileMaker(object):
             paths.append(path.replace('tree.txt', 'eqn'))
         return paths
 
-    def generate_logic(self, input_path, output_path):
+    def generate_logic_from_rules_tree(self, input_path, output_path):
         symbols = []
         if 'sop' in self.eqn_type:
             symbols.append('+')
@@ -94,61 +91,42 @@ class EqnFileMaker(object):
             # if flag:
             #     self.test_constant_outputs_accuracy(output_path)
 
-    # def unite_eqn(self, ex):  # file_type = 'original' | 'non_redundant'
-    #     header = ''
-    #     sop = ''
-    #     pos = ''
-    #
-    #     try:
-    #         with open('sop/' + self.benchmark_type + '/' + ex + '.train.eqn') as file:
-    #             temp = file.read().split('f1 = ')
-    #             header += temp[0]
-    #             sop += temp[1]
-    #         with open('pos/' + self.benchmark_type + '/' + ex + '.train.eqn') as file:
-    #             pos += file.read().split('f1 = ')[1]
-    #
-    #         result = ''
-    #         if sop == '1;':
-    #             result += '1;'
-    #         elif sop == '0;':
-    #             result += '0;'
-    #         else:
-    #             result += sop.replace(';', '') + '+' + pos
-    #
-    #         # print('file_type + '_sop_pos/' + path[:4] + '.train.eqn')
-    #         output_file = open('sop_pos/' + self.benchmark_type + '/' + ex + '.train.eqn', 'w+')
-    #         output_file.write(header + 'f1 = ' + result)
-    #     except Exception as e:
-    #         print(e)
-    #     else:
-    #         self.apply_multiplexer(header, sop.replace(';', ''), pos.replace(';', ''), ex)
+    def generate_logic(self, input_path, output_path):
+        expression = ''
+        sum = []
+        n_attributes = 0
+        prev_line = ''
+        with open(input_path) as fin:
+            for line in fin.readlines():
+                if 'cases (' in line:
+                    aux1 = line.find('(')
+                    aux2 = line.find(')')
+                    temp = line[aux1 + 1:aux2]
+                    n_attributes = temp.split(' ')[0]
+                if 'X' in line:
+                    n = line.count(':')
+                    if n == 0:
+                        break
+                    if n <= len(sum):
+                        if prev_line.split(' (')[0][-1] == '1':
+                            expression += '+' + '*'.join(element for element in sum)
+                        for i in range(n - len(sum) + 1):
+                            sum.pop()
+                    aux = line.replace(':', '').replace('.', '').replace(' ', '').split('=')
+                    if aux[1][0] == '0':
+                        sum.append('!' + aux[0])
+                    else:
+                        sum.append(aux[0])
+                prev_line = line
+        expression = expression[1:]
 
-    # def apply_multiplexer(self, header, sop, pos, ex):
-    #     default_class = ''
-    #     with open('trees/' + self.benchmark_type + '/' + ex + '.tree.txt') as file:
-    #         for line in file:
-    #             if 'Default class' in line:
-    #                 default_class += line.split(': ')[1][:1]
-    #
-    #     # nand1 !(sop * pos)
-    #     nand1 = str('!(' + sop + ' * ' + pos + ')')
-    #     # nand2 !(sop * nand1)
-    #     nand2 = str('!(' + sop + ' * ' + nand1 + ')')
-    #     # nand3 !(nand1 * pos)
-    #     nand3 = str('!(' + nand1 + ' * ' + pos + ')')
-    #     # nand4 !(nand2 * nand3)
-    #     nand4 = str('!(' + nand2 + ' * ' + nand3 + ')')
-    #
-    #     # mux_and1  (sop * !nand4)
-    #     mux_and1 = str('(' + sop + ' * !' + nand4 + ')')
-    #     # mux_and2  (default_class * nand4)
-    #     mux_and2 = str('(' + default_class + ' * ' + nand4 + ')')
-    #     # result    !(!mux_and1 * !mux_and2)
-    #     result = str('!(!' + mux_and1 + ' * !' + mux_and2 + ')')
-    #
-    #     output_file = open('sop_pos_mux/' + self.benchmark_type + '/' + ex + '.train.eqn', 'w+')
-    #     output_file.write(header + 'f1 = ' + result.replace('!!', '') + ';')
-    #     output_file.close()
+        with open(output_path, 'w') as fout:
+            header = 'INORDER ='
+            for i in range(int(n_attributes) - 1):
+                header += ' X' + str(i)
+            header += ';\nOUTORDER = f1;\n'
+            final_expression = header + 'f1 = ' + expression + ';'
+            print(final_expression, file=fout)
 
     @staticmethod
     def make_aig_from_pla(dir_path):
@@ -214,4 +192,3 @@ class EqnFileMaker(object):
                     fout.writelines(table_results)
         except Exception as e:
             print(e)
-

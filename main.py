@@ -11,7 +11,6 @@ def main():
 
     tree_maker.TreeMaker('c50_files/files').make_tree()
 
-    eqn_file_maker.EqnFileMaker('pos').make_aig()
     eqn_file_maker.EqnFileMaker('sop').make_aig()
 
 
