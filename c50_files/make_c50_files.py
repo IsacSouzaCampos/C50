@@ -16,6 +16,13 @@ class MakeC50Files:
 
 	@staticmethod
 	def split_outputs(_path):
+		with open(f'Benchmarks/{_path}', 'r') as fin:
+			for line in fin.readlines():
+				if '.i' in line:
+					if int(line.split(' ')[1]) > 16:
+						raise Exception('Numero de inputs superior a 16')
+					else:
+						break
 		with open('temp/collapse_script', 'w') as fout:
 			print('read_pla Benchmarks/'+_path+'; collapse; write_pla -m temp/temp.pla', file=fout)
 		os.system('./abc -F temp/collapse_script')
@@ -24,8 +31,6 @@ class MakeC50Files:
 		with open('temp/temp.pla', 'r') as fin:
 			temp_pla = fin.read()
 			for _line in temp_pla.splitlines():
-				if '.i' in _line and int(_line.split()[1]) > 16:
-					raise Exception('Numero de inputs superior a 16')
 				if '.o' in _line:
 					number_of_outputs = int(_line.split()[1])
 					break
