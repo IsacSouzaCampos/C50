@@ -124,7 +124,7 @@ class EqnFileMaker(object):
                     levs = mltest_lines[3].split()[11][:-4]
                     acc = mltest_lines[5].split()[9].replace('(', '')
                     if acc == '':
-                        acc = acc = mltest_lines[5].split()[10]
+                        acc = mltest_lines[5].split()[10]
                     results = f'{self.path},{ands},{levs},{acc}'
                     table_results.append(results + '\n')
                 except Exception as e:
