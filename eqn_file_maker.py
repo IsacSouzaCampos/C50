@@ -111,13 +111,13 @@ class EqnFileMaker(object):
         table_results = []
 
         try:
-            with open(f'sop_table_results', 'r') as fin:
+            with open(f'sop_table_results.csv', 'r') as fin:
                 table_results = fin.readlines()
         except Exception as e:
             print(e)
 
         try:
-            with open(f'sop_table_results', 'w') as fout, open('temp/mltest_results', 'r') as fin:
+            with open(f'sop_table_results.csv', 'w') as fout, open('temp/mltest_results', 'r') as fin:
                 mltest_lines = fin.readlines()
                 try:
                     ands = mltest_lines[3].split()[8][:-4]
@@ -125,7 +125,7 @@ class EqnFileMaker(object):
                     acc = mltest_lines[5].split()[9].replace('(', '')
                     if acc == '':
                         acc = acc = mltest_lines[5].split()[10]
-                    results = f'{self.path}\t{ands}\t{levs}\t{acc}'
+                    results = f'{self.path},{ands},{levs},{acc}'
                     table_results.append(results + '\n')
                 except Exception as e:
                     print(e)
