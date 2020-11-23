@@ -1,5 +1,5 @@
 import tree_maker
-import eqn_file_maker
+import run_all
 from c50_files import make_c50_files
 import clear
 import os
@@ -14,7 +14,7 @@ def main():
 
     for path in os.listdir('trees'):
         print(path)
-        eqn_file_maker.EqnFileMaker(path).make_aig()
+        run_all.RunAll(path).make_aig()
 
 
 def initialize():

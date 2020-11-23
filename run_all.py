@@ -1,7 +1,7 @@
 import os
 
 
-class EqnFileMaker(object):
+class RunAll(object):
     def __init__(self, path):
         self.path = path
 
@@ -39,6 +39,12 @@ class EqnFileMaker(object):
                     temp = line[aux1 + 1:aux2]
                     n_attributes = temp.split(' ')[0]
 
+                if len(line) > 1:
+                    if line[1] == '0':
+                        expression += '0'
+                    elif line[1] == '1':
+                        expression += '1'
+
                 if 'X' in line:
                     n = int(len(line.split('X')[0]) / 4)
                     n_prev = int(len(prev_line.split('X')[0]) / 4)
@@ -59,7 +65,8 @@ class EqnFileMaker(object):
                         sum.append(aux[0])
 
                 prev_line = line
-        expression = expression[1:]
+        if expression[0] == '+':
+            expression = expression[1:]
 
         with open(output_path, 'w') as fout:
             header = 'INORDER ='
