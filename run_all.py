@@ -39,7 +39,7 @@ class RunAll(object):
                     temp = line[aux1 + 1:aux2]
                     n_attributes = temp.split(' ')[0]
 
-                if len(line) > 1:
+                if len(line) > 1 and line[0] == ' ':
                     if line[1] == '0':
                         expression += '0'
                     elif line[1] == '1':
@@ -65,7 +65,7 @@ class RunAll(object):
                         sum.append(aux[0])
 
                 prev_line = line
-        if expression[0] == '+':
+        if len(expression) > 0 and expression[0] == '+':
             expression = expression[1:]
 
         with open(output_path, 'w') as fout:
