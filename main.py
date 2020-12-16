@@ -20,9 +20,13 @@ def main():
         except Exception as e:
             errors.append((path, e))
 
+    open('errors.csv', 'x').close()
+    errors_output = open('errors.csv', 'w')
     print('errors:')
     for e in errors:
         print(e)
+        print(f'{e[0]}, {e[1]}', file=errors_output)
+    errors_output.close()
 
 
 def initialize():
