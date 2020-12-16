@@ -6,100 +6,101 @@ class RunAll(object):
         self.path = path
 
     def make_aig(self):
-        self.make_eqn_file()
-        self.make_aig_from_eqn()
-        self.extract_data()
+        try:
+            self.make_eqn_file()
+            self.make_aig_from_eqn()
+            self.extract_data()
+
+        except Exception as e:
+            raise e
 
     def make_eqn_file(self):
-        if '.tree' in self.path:
-            input_path = str(f'trees/{self.path}')
-            output_path = str(f'sop/{self.path.replace("tree.txt", "eqn")}')
-            self.generate_logic(input_path, output_path)
+        try:
+            output_path = ''
+            if '.tree' in self.path:
+                input_path = str(f'trees/{self.path}')
+                output_path = str(f'sop/{self.path.replace("tree", "eqn")}')
+                self.generate_logic(input_path, output_path)
 
-        remove = False
-        with open(output_path) as fin:
-            lines = fin.readlines()
-            if 'f1 = ;' in lines[2]:
-                remove = True
-        if remove:
-            os.system(f'rm {output_path}')
+            remove = False
+            with open(output_path) as fin:
+                lines = fin.readlines()
+                if 'f1 = ;' in lines[2]:
+                    remove = True
+            if remove:
+                os.system(f'rm {output_path}')
 
-        self.path = self.path.replace('tree.txt', 'eqn')
+            self.path = self.path.replace('tree', 'eqn')
 
-    def generate_logic(self, input_path, output_path):
-        expression = ''
-        sum = []
-        n_attributes = 0
-        prev_line = ''
-        with open(input_path) as fin:
-            for line in fin.readlines():
-                if 'cases (' in line:
-                    aux1 = line.find('(')
-                    aux2 = line.find(')')
-                    temp = line[aux1 + 1:aux2]
-                    n_attributes = temp.split(' ')[0]
-
-                if len(line) > 1 and line[0] == ' ':
-                    if line[1] == '0':
-                        expression += '0'
-                    elif line[1] == '1':
-                        expression += '1'
-
-                if 'X' in line:
-                    n = int(len(line.split('X')[0]) / 4)
-                    n_prev = int(len(prev_line.split('X')[0]) / 4)
-
-                    if ':' not in line:
-                        break
-                    if n <= n_prev:
-                        if prev_line.split(' (')[0][-1] == '1':
-                            expression += '+' + '*'.join(element for element in sum)
-                            for i in range(n_prev - n + 1):
-                                sum.pop()
-                        elif len(sum):
-                            sum.pop()
-                    aux = line.replace(':', '').replace('.', '').replace(' ', '').split('=')
-                    if aux[1][0] == '0':
-                        sum.append('!' + aux[0])
-                    else:
-                        sum.append(aux[0])
-
-                prev_line = line
-        if len(expression) > 0 and expression[0] == '+':
-            expression = expression[1:]
-
-        with open(output_path, 'w') as fout:
-            header = 'INORDER ='
-            for i in range(int(n_attributes) - 1):
-                header += ' X' + str(i)
-            header += ';\nOUTORDER = f1;\n'
-            final_expression = header + 'f1 = ' + expression + ';'
-            print(final_expression, file=fout)
+        except Exception as e:
+            raise Exception(f'Error 2: {e}')
 
     @staticmethod
-    def make_aig_from_pla(dir_path):
-        for path in os.listdir(dir_path):
-            if '.eqn' in path:
-                new_file = str('espresso_script_automation/reduced_benchmarks_aig/' + path[:4] + '.train.aig')
-                script = str('read_pla ' + dir_path + path + '\nstrash\nwrite_aiger ' + new_file + '\n&read ' +
-                             new_file + '; &ps; &mltest Benchmarks/' + path[:4] + '.valid.pla')
-                script_file = open('pla_script.scr', 'w+')
-                script_file.write(script)
-                script_file.close()
+    def generate_logic(input_path, output_path):
+        try:
+            expression = ''
+            s = []  # sum
+            n_attributes = 0
+            prev_line = ''
+            with open(input_path) as fin:
+                for line in fin.readlines():
+                    if 'cases (' in line:
+                        aux1 = line.find('(')
+                        aux2 = line.find(')')
+                        temp = line[aux1 + 1:aux2]
+                        n_attributes = temp.split(' ')[0]
 
-                mltest_result = open('mltest_result.txt', 'w+')
-                mltest_result.truncate(0)
-                mltest_result.close()
-                os.system('./abc -c \'source pla_script.scr\' >> espresso_script_automation/mltest_result.txt')
+                    if len(line) > 1 and line[0] == ' ':
+                        if line[1] == '0':
+                            expression += '0'
+                        elif line[1] == '1':
+                            expression += '1'
+
+                    if 'X' in line:
+                        n = int(len(line.split('X')[0]) / 4)
+                        n_prev = int(len(prev_line.split('X')[0]) / 4)
+
+                        if ':' not in line:
+                            break
+                        if n <= n_prev:
+                            if prev_line.split(' (')[0][-1] == '1':
+                                expression += '+' + '*'.join(element for element in s)
+                                for i in range(n_prev - n + 1):
+                                    s.pop()
+                            elif len(s):
+                                s.pop()
+                        aux = line.replace(':', '').replace('.', '').replace(' ', '').split('=')
+                        if aux[1][0] == '0':
+                            s.append('!' + aux[0])
+                        else:
+                            s.append(aux[0])
+
+                    prev_line = line
+            if len(expression) > 0 and expression[0] == '+':
+                expression = expression[1:]
+
+            with open(output_path, 'w') as fout:
+                header = 'INORDER ='
+                for i in range(int(n_attributes) - 1):
+                    header += ' X' + str(i)
+                header += ';\nOUTORDER = f1;\n'
+                final_expression = header + 'f1 = ' + expression + ';'
+                print(final_expression, file=fout)
+
+        except Exception as e:
+            raise Exception(f'Error 3: {e}')
 
     def make_aig_from_eqn(self):
-        if '.eqn' in self.path:
-            with open('temp/make_aig_from_eqn_script', 'w') as fout:
-                print(f'read_eqn sop/{self.path}', file=fout)
-                print('strash', file=fout)
-                print(f'write_aiger sop/aig/{self.path.replace("eqn", "aig")}', file=fout)
-            os.system('./abc -F temp/make_aig_from_eqn_script')
-            self.path = self.path.replace('eqn', 'aig')
+        try:
+            if '.eqn' in self.path:
+                with open('temp/make_aig_from_eqn_script', 'w') as fout:
+                    print(f'read_eqn sop/{self.path}', file=fout)
+                    print('strash', file=fout)
+                    print(f'write_aiger sop/aig/{self.path.replace("eqn", "aig")}', file=fout)
+                os.system('./abc -F temp/make_aig_from_eqn_script')
+                self.path = self.path.replace('eqn', 'aig')
+        except Exception as e:
+            raise Exception(f'Error 4: {e}')
 
     def extract_data(self):
         with open('temp/mltest_script', 'w') as fout:
@@ -111,20 +112,18 @@ class RunAll(object):
                     output_number = self.path[-5]
             print(f'&r sop/aig/{self.path}; &ps; &mltest temp/temp_out_{output_number}.pla', file=fout)
 
-        file = open('temp/mltest_results', 'w')
+        file = open('temp/mltest_results.txt', 'w')
         file.close()
-        os.system('./abc -F temp/mltest_script >> temp/mltest_results')
-
-        table_results = []
+        os.system('./abc -F temp/mltest_script >> temp/mltest_results.txt')
 
         try:
             with open(f'sop_table_results.csv', 'r') as fin:
                 table_results = fin.readlines()
         except Exception as e:
-            print(e)
+            raise Exception(f'Error 5: {e}')
 
         try:
-            with open(f'sop_table_results.csv', 'w') as fout, open('temp/mltest_results', 'r') as fin:
+            with open(f'sop_table_results.csv', 'w') as fout, open('temp/mltest_results.txt', 'r') as fin:
                 mltest_lines = fin.readlines()
                 try:
                     ands = mltest_lines[3].split()[8][:-4]
@@ -135,8 +134,8 @@ class RunAll(object):
                     results = f'{self.path},{ands},{levs},{acc}'
                     table_results.append(results + '\n')
                 except Exception as e:
-                    print(e)
+                    raise Exception(f'Error 6: {e}')
                 finally:
                     fout.writelines(table_results)
         except Exception as e:
-            print(e)
+            raise Exception(f'Error 7: {e}')

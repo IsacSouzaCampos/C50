@@ -1,20 +1,28 @@
 import tree_maker
 import run_all
 from c50_files import make_c50_files
-import clear
 import os
 
 
 def main():
     initialize()
 
-    make_c50_files.MakeC50Files().run_make_files()
+    errors = make_c50_files.MakeC50Files().run_make_files()
 
     tree_maker.TreeMaker('c50_files/files').make_tree()
 
     for path in os.listdir('trees'):
         print(path)
-        run_all.RunAll(path).make_aig()
+        os.system('rm temp/*.pla')
+        try:
+            make_c50_files.MakeC50Files().split_outputs(f'{path.split("_")[0]}.pla')
+            run_all.RunAll(path).make_aig()
+        except Exception as e:
+            errors.append((path, e))
+
+    print('errors:')
+    for e in errors:
+        print(e)
 
 
 def initialize():
@@ -29,7 +37,12 @@ def initialize():
     if not os.path.exists('sop/aig'):
         os.mkdir('sop/aig')
 
-    clear
+    clear()
+    open('sop_table_results.csv', 'x').close()
+
+
+def clear():
+    os.system('rm c50_files/files/* trees/* temp/* pos/* pos/aig/* sop/* sop/aig/* *_table_results nohup* *results*')
 
 
 if __name__ == '__main__':
