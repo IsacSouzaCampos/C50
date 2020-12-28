@@ -11,7 +11,7 @@ def split_outputs(_path):
                     else:
                         break
         with open('../temp/collapse_script', 'w') as fout:
-            print('read_pla ../Benchmarks/' + _path + '; collapse; write_pla -m temp/temp.pla', file=fout)
+            print('read_pla ../Benchmarks/' + _path + '; collapse; write_pla -m ../temp/temp.pla', file=fout)
         os.system('.././abc -F ../temp/collapse_script')
 
         number_of_outputs = 0
@@ -40,6 +40,11 @@ def split_outputs(_path):
         print(e)
 
 
+try:
+    os.system('rm bad_PLAs/* bad_AIGs/*')
+except Exception as e:
+    print(e)
+
 bad_guys = []
 with open('results.csv', 'r') as fin:
     for line in fin.readlines():
@@ -48,8 +53,6 @@ with open('results.csv', 'r') as fin:
             bad_guys.append(columns[0])
 
 bad_guys = sorted(bad_guys)
-# for bg in bad_guys:
-#     print(bg)
 
 print()
 
@@ -71,13 +74,16 @@ for i in range(len(bad_guys)):
 bad_outputs.append((current, list(outputs)))
 
 for bo in bad_outputs:
+    os.system('rm ../temp/*.pla')
     for path in os.listdir('../Benchmarks'):
-        if bo[0] in path:
+        if bo[0] == path.split('.')[0]:
             split_outputs(path)
             for n in bo[1]:
                 for f in os.listdir('../temp'):
-                    if '.pla' in f and f'_out_{n}.' in f:
-                        os.system(f'cp ../temp/{f} {bo[0]}_out_{n}.pla')
+                    if f'_out_{n}.pla' in f:
+                        os.system(f'cp ../temp/{f} bad_PLAs/{bo[0]}_out_{n}.pla')
+                        os.system(f'cp AIGs/{bo[0]}_out_{n}.aig bad_AIGs')
+                        os.system(f'cp EQNs/{bo[0]}_out_{n}.eqn bad_EQNs')
 
 with open('bad_outputs.csv', 'w') as fout:
     for bo in bad_outputs:
