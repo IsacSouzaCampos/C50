@@ -41,7 +41,7 @@ def split_outputs(_path):
 
 
 try:
-    os.system('rm bad_PLAs/* bad_AIGs/*')
+    os.system('rm bad_PLAs/* bad_AIGs/* bad_EQNs/*')
 except Exception as e:
     print(e)
 
@@ -84,6 +84,11 @@ for bo in bad_outputs:
                         os.system(f'cp ../temp/{f} bad_PLAs/{bo[0]}_out_{n}.pla')
                         os.system(f'cp AIGs/{bo[0]}_out_{n}.aig bad_AIGs')
                         os.system(f'cp EQNs/{bo[0]}_out_{n}.eqn bad_EQNs')
+                        os.system(f'cp TREEs/{bo[0]}_out_{n}.tree bad_TREEs')
+
+for tree in os.listdir('bad_TREEs'):
+    if tree.replace('tree', 'aig') not in os.listdir('bad_AIGs'):
+        os.system(f'rm bad_TREEs/{tree}')
 
 with open('bad_outputs.csv', 'w') as fout:
     for bo in bad_outputs:
