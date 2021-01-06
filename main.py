@@ -7,18 +7,21 @@ import os
 def main():
     initialize()
 
-    errors = make_c50_files.MakeC50Files().run_make_files()
+    errors = []
+    for path in os.listdir('Benchmarks'):
+        make_c50_files_results = make_c50_files.MakeC50Files().run_make_files(path)
+        errors.append((path, make_c50_files_results[0]))
+        number_of_outputs = make_c50_files_results[1]
+        benchmarck_name = path.replace('.pla', '')
 
-    tree_maker.TreeMaker('c50_files/files').make_tree()
+        tree_maker.TreeMaker().make_tree(benchmarck_name, number_of_outputs)
 
-    for path in os.listdir('trees'):
-        print(path)
-        os.system('rm temp/*.pla')
-        try:
-            make_c50_files.MakeC50Files().split_outputs(f'{path.split("_")[0]}.pla')
-            run_all.RunAll(path).make_aig()
-        except Exception as e:
-            errors.append((path, e))
+        for tree in os.listdir('trees'):
+            try:
+                print(f'tree = {tree}')
+                run_all.RunAll(tree).run()
+            except Exception as e:
+                errors.append((tree, e))
 
     open('errors.csv', 'x').close()
     errors_output = open('errors.csv', 'w')
@@ -38,15 +41,17 @@ def initialize():
         os.mkdir('trees')
     if not os.path.exists('sop'):
         os.mkdir('sop')
-    if not os.path.exists('sop/aig'):
-        os.mkdir('sop/aig')
+    if not os.path.exists('aig'):
+        os.mkdir('aig')
+    if not os.path.exists('verilog'):
+        os.mkdir('verilog')
 
     clear()
     open('sop_table_results.csv', 'x').close()
 
 
 def clear():
-    os.system('rm c50_files/files/* trees/* temp/* pos/* pos/aig/* sop/* sop/aig/* *_table_results nohup* *results*')
+    os.system('rm c50_files/files/* trees/* temp/* pos/* pos/aig/* sop/* aig/* verilog/* nohup* *.csv')
 
 
 if __name__ == '__main__':

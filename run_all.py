@@ -5,16 +5,18 @@ class RunAll(object):
     def __init__(self, path):
         self.path = path
 
-    def make_aig(self):
+    def run(self):
         try:
             self.make_eqn_file()
             self.make_aig_from_eqn()
             self.extract_data()
+            self.make_verilog()
 
         except Exception as e:
             raise e
 
     def make_eqn_file(self):
+        # print(f'make_eqn_file ({self.path})')
         try:
             output_path = ''
             if '.tree' in self.path:
@@ -25,10 +27,11 @@ class RunAll(object):
             remove = False
             with open(output_path) as fin:
                 lines = fin.readlines()
-                if 'f1 = ;' in lines[2]:
+                if 'f1 = ;' in lines[2]:    # c5.0 não aprendeu a árvore
                     remove = True
             if remove:
                 os.system(f'rm {output_path}')
+                raise Exception('C5.0 não aprendeu a árvore')
 
             self.path = self.path.replace('tree', 'eqn')
 
@@ -37,6 +40,7 @@ class RunAll(object):
 
     @staticmethod
     def generate_logic(input_path, output_path):
+        # print(f'generate_logic ({input_path})')
         try:
             expression = ''
             s = []  # sum
@@ -91,18 +95,20 @@ class RunAll(object):
             raise Exception(f'Error 3: {e}')
 
     def make_aig_from_eqn(self):
+        # print(f'make_aig_from_eqn ({self.path})')
         try:
             if '.eqn' in self.path:
                 with open('temp/make_aig_from_eqn_script', 'w') as fout:
                     print(f'read_eqn sop/{self.path}', file=fout)
                     print('strash', file=fout)
-                    print(f'write_aiger sop/aig/{self.path.replace("eqn", "aig")}', file=fout)
+                    print(f'write_aiger aig/{self.path.replace("eqn", "aig")}', file=fout)
                 os.system('./abc -F temp/make_aig_from_eqn_script')
                 self.path = self.path.replace('eqn', 'aig')
         except Exception as e:
             raise Exception(f'Error 4: {e}')
 
     def extract_data(self):
+        # print(f'extract_data ({self.path})')
         with open('temp/mltest_script', 'w') as fout:
             output_number = ''
             if self.path[-5].isnumeric():
@@ -110,7 +116,7 @@ class RunAll(object):
                     output_number = self.path[-6] + self.path[-5]
                 else:
                     output_number = self.path[-5]
-            print(f'&r sop/aig/{self.path}; &ps; &mltest temp/temp_out_{output_number}.pla', file=fout)
+            print(f'&r aig/{self.path}; &ps; &mltest temp/temp_out_{output_number}.pla', file=fout)
 
         file = open('temp/mltest_results.txt', 'w')
         file.close()
@@ -139,3 +145,18 @@ class RunAll(object):
                     fout.writelines(table_results)
         except Exception as e:
             raise Exception(f'Error 7: {e}')
+
+    def make_verilog(self):
+        # print(f'make_verilog ({self.path})')
+        verilog_file = self.path.replace("aig", "v")
+        with open('temp/make_verilog_script', 'w') as fout:
+            print(f'read_aiger aig/{self.path}\n'
+                  f'write_verilog verilog/{verilog_file}', file=fout)
+        os.system('./abc -F temp/make_verilog_script')
+
+        with open(f'verilog/{verilog_file}', 'r') as fin:
+            verilog = fin.read()
+            verilog.replace('\\aig/', '')
+
+        with open(f'verilog/{verilog_file}', 'w') as fout:
+            print(verilog, file=fout)

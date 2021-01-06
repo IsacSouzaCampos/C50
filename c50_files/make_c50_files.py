@@ -57,53 +57,50 @@ class MakeC50Files:
 		except Exception as e:
 			raise e
 
-	def run_make_files(self):
+	def run_make_files(self, path):
 		errors = []
+		number_of_outputs = 0
 
-		for path in os.listdir('Benchmarks'):
-			if '.pla' not in path:
-				continue
-			print(path)
+		try:
+			number_of_outputs = self.split_outputs(path)
+			for i in range(number_of_outputs):
+				file_name = path.split('.')[0]
 
-			try:
-				for i in range(self.split_outputs(path)):
-					file_name = path.split('.')[0]
+				c50f_data_final_name = file_name + '_out_' + str(i) + '.data'
+				c50f_names_final_name = file_name + '_out_' + str(i) + '.names'
+				c50f_test_final_name = file_name + '_out_' + str(i) + '.test'
 
-					c50f_data_final_name = file_name + '_out_' + str(i) + '.data'
-					c50f_names_final_name = file_name + '_out_' + str(i) + '.names'
-					c50f_test_final_name = file_name + '_out_' + str(i) + '.test'
+				ftrain = open('temp/temp_out_'+str(i)+'.pla', 'r')
+				ftest = open('temp/temp_out_'+str(i)+'.pla', 'r')
 
-					ftrain = open('temp/temp_out_'+str(i)+'.pla', 'r')
-					ftest = open('temp/temp_out_'+str(i)+'.pla', 'r')
+				lines = ftrain.readlines()
+				lines_test = ftest.readlines()
+				ftrain.close()
+				ftest.close()
 
-					lines = ftrain.readlines()
-					lines_test = ftest.readlines()
-					ftrain.close()
-					ftest.close()
+				train_data = []
+				test_data = []
+				for line in lines:
+					if '.' in line or '#' in line:
+						continue
+					x, y = line.split()
+					x = [_ for _ in x]
+					train_data.append(x+[y])
 
-					train_data = []
-					test_data = []
-					for line in lines:
-						if '.' in line or '#' in line:
-							continue
-						x, y = line.split()
-						x = [_ for _ in x]
-						train_data.append(x+[y])
+				for line in lines_test:
+					if '.' in line or '#' in line:
+						continue
+					x, y = line.split()
+					x = [_ for _ in x]
+					test_data.append(x+[y])
 
-					for line in lines_test:
-						if '.' in line or '#' in line:
-							continue
-						x, y = line.split()
-						x = [_ for _ in x]
-						test_data.append(x+[y])
+				train_data = np.array(train_data)
+				test_data = np.array(test_data)
+				np.savetxt('c50_files/files/'+c50f_data_final_name, train_data, fmt='%c', delimiter=',')
+				np.savetxt('c50_files/files/'+c50f_test_final_name, test_data, fmt='%c', delimiter=',')
+				self.save_names_file(nfeat=train_data.shape[1]-1, filename='c50_files/files/'+c50f_names_final_name)
 
-					train_data = np.array(train_data)
-					test_data = np.array(test_data)
-					np.savetxt('c50_files/files/'+c50f_data_final_name, train_data, fmt='%c', delimiter=',')
-					np.savetxt('c50_files/files/'+c50f_test_final_name, test_data, fmt='%c', delimiter=',')
-					self.save_names_file(nfeat=train_data.shape[1]-1, filename='c50_files/files/'+c50f_names_final_name)
+		except Exception as e:
+			errors.append((path, e))
 
-			except Exception as e:
-				errors.append((path, e))
-
-		return errors
+		return errors, number_of_outputs
