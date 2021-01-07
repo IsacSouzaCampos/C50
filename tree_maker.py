@@ -7,7 +7,6 @@ class TreeMaker(object):
         file_path = 'c50_files/files'
         for i in range(number_of_outputs):
             base_name = f'{benchmark_name}_out_{i}'
-            print('./c5.0 -f ' + file_path + '/' + base_name + ' > trees/' + base_name + '.tree')
             os.system('./c5.0 -f ' + file_path + '/' + base_name + ' > trees/' + base_name +
                       '.tree')
             remove = False
@@ -15,5 +14,7 @@ class TreeMaker(object):
                 lines = fin.readlines()
                 if int(lines[9].split()[1]) < 64:
                     remove = True
-            # if remove:
-            #     os.system('rm trees/' + base_name + '.tree')
+            if remove:
+                os.system('rm trees/' + base_name + '.tree')
+            else:
+                print(f'{base_name}.tree FILE CREATED')

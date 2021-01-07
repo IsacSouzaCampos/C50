@@ -6,7 +6,6 @@ class MakeC50Files:
 	@staticmethod
 	def save_names_file(nfeat, filename):
 		try:
-			print(filename)
 			f = open(filename, 'w')
 			print('Fout.\n', file=f)
 			for _i in range(nfeat):
@@ -14,6 +13,8 @@ class MakeC50Files:
 
 			print('Fout:\t0,1.', file=f)
 			f.close()
+
+			print(f'{filename.split(".")[0].split("/")[-1]} C5.0 INPUT FILES CREATED')
 
 		except Exception as e:
 			raise e

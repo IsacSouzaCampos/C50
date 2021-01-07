@@ -147,7 +147,6 @@ class RunAll(object):
             raise Exception(f'Error 7: {e}')
 
     def make_verilog(self):
-        # print(f'make_verilog ({self.path})')
         verilog_file = self.path.replace("aig", "v")
         with open('temp/make_verilog_script', 'w') as fout:
             print(f'read_aiger aig/{self.path}\n'
@@ -156,7 +155,10 @@ class RunAll(object):
 
         with open(f'verilog/{verilog_file}', 'r') as fin:
             verilog = fin.read()
-            verilog.replace('\\aig/', '')
+
+        verilog.replace('\\aig/', '')
 
         with open(f'verilog/{verilog_file}', 'w') as fout:
             print(verilog, file=fout)
+
+        print(f'{verilog_file} CREATED')
