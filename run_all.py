@@ -1,9 +1,11 @@
 import os
+from datetime import datetime
 
 
 class RunAll(object):
     def __init__(self, path):
         self.path = path
+        self.base_name = self.path.split('.')[0]
 
     def run(self):
         try:
@@ -11,6 +13,7 @@ class RunAll(object):
             self.make_aig_from_eqn()
             self.extract_data()
             self.make_verilog()
+            self.create_quartus_files()
 
         except Exception as e:
             raise e
@@ -18,11 +21,10 @@ class RunAll(object):
     def make_eqn_file(self):
         # print(f'make_eqn_file ({self.path})')
         try:
-            output_path = ''
             if '.tree' in self.path:
-                input_path = str(f'trees/{self.path}')
-                output_path = str(f'sop/{self.path.replace("tree", "eqn")}')
-                self.generate_logic(input_path, output_path)
+                self.generate_logic()
+
+            output_path = str(f'sop/{self.path.replace("tree", "eqn")}')
 
             remove = False
             with open(output_path) as fin:
@@ -38,15 +40,14 @@ class RunAll(object):
         except Exception as e:
             raise Exception(f'Error 2: {e}')
 
-    @staticmethod
-    def generate_logic(input_path, output_path):
+    def generate_logic(self):
         # print(f'generate_logic ({input_path})')
         try:
             expression = ''
             s = []  # sum
             n_attributes = 0
             prev_line = ''
-            with open(input_path) as fin:
+            with open(f'trees/{self.path}') as fin:
                 for line in fin.readlines():
                     if 'cases (' in line:
                         aux1 = line.find('(')
@@ -83,7 +84,7 @@ class RunAll(object):
             if len(expression) > 0 and expression[0] == '+':
                 expression = expression[1:]
 
-            with open(output_path, 'w') as fout:
+            with open(f'sop/{self.path.replace("tree", "eqn")}', 'w') as fout:
                 header = 'INORDER ='
                 for i in range(int(n_attributes) - 1):
                     header += ' X' + str(i)
@@ -147,18 +148,77 @@ class RunAll(object):
             raise Exception(f'Error 7: {e}')
 
     def make_verilog(self):
+        directory = f'verilog/{self.path.split(".")[0]}'
+        os.mkdir(directory)
         verilog_file = self.path.replace("aig", "v")
         with open('temp/make_verilog_script', 'w') as fout:
             print(f'read_aiger aig/{self.path}\n'
-                  f'write_verilog verilog/{verilog_file}', file=fout)
+                  f'write_verilog {directory}/{verilog_file}', file=fout)
         os.system('./abc -F temp/make_verilog_script')
 
-        with open(f'verilog/{verilog_file}', 'r') as fin:
+        with open(f'{directory}/{verilog_file}', 'r') as fin:
             verilog = fin.read()
 
-        verilog.replace('\\aig/', '')
+        verilog = verilog.replace('\\aig/', '')
 
-        with open(f'verilog/{verilog_file}', 'w') as fout:
+        with open(f'{directory}/{verilog_file}', 'w') as fout:
             print(verilog, file=fout)
 
         print(f'{verilog_file} CREATED')
+
+    def create_quartus_files(self):
+        month_list = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September',
+                      'October', 'November', 'December']
+
+        project_name = self.base_name
+
+        time = datetime.now().strftime("%H:%M:%S")
+
+        month_number = datetime.today().date().month
+        month = month_list[month_number - 1]
+
+        day = str(datetime.today().day).zfill(2)
+
+        year = datetime.today().year
+
+        with open('verilog/QPF.qpf', 'r') as qpf, open('verilog/QSF.qsf', 'r') as qsf:
+            qpf_lines = qpf.readlines()
+            qsf_lines = qsf.readlines()
+
+        qpf_output = ''
+        for i in range(len(qpf_lines)):
+            if i == 21:
+                qpf_output += f'# Date created = {time}  {month} {day}, {year}\n'
+            elif i == 26:
+                qpf_output += f'DATE = \"{time}  {month} {day}, {year}\"\n'
+            elif i == 30:
+                qpf_output += f'PROJECT_REVISION = \"{project_name}\"'
+            else:
+                qpf_output += qpf_lines[i]
+
+            qsf_output = ''
+            for i in range(len(qsf_lines)):
+                if i == 21:
+                    qsf_output += f'# Date created = {time}  {month} {day}, {year}\n'
+                elif i == 28:
+                    qsf_output += f'#		{project_name}_assignment_defaults.qdf\n'
+                elif i == 41:
+                    qsf_output += f'set_global_assignment -name TOP_LEVEL_ENTITY {project_name}\n'
+                elif i == 43:
+                    qsf_output += f'set_global_assignment -name PROJECT_CREATION_TIME_DATE \"{time}  {month.upper()} ' \
+                                  f'{day}, {year}\"\n'
+                else:
+                    qsf_output += qsf_lines[i]
+
+            with open(f'verilog/{self.base_name}/{self.base_name}.qpf', 'w') as qpf, \
+                    open(f'verilog/{self.base_name}/{self.base_name}.qsf', 'w') as qsf:
+                print(qpf_output, file=qpf)
+                print(qsf_output, file=qsf)
+
+        print(f'{self.path} QUARTUS FILES CREATED')
+
+    def compile_verilog(self):
+        os.system(f'quartus_map verilog/{self.base_name}/{self.base_name}')
+        os.system(f'quartus_fit verilog/{self.base_name}/{self.base_name}')
+        os.system(f'quartus_sta verilog/{self.base_name}/{self.base_name}')
+        os.system(f'quartus_eda verilog/{self.base_name}/{self.base_name}')
