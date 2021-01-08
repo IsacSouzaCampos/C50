@@ -2,7 +2,7 @@ import tree_maker
 import run_all
 from c50_files import make_c50_files
 import os
-from datetime import datetime
+
 
 def main():
     initialize()

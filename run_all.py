@@ -14,6 +14,7 @@ class RunAll(object):
             self.extract_data()
             self.make_verilog()
             self.create_quartus_files()
+            self.compile_verilog()
 
         except Exception as e:
             raise e
