@@ -12,9 +12,9 @@ class RunAll(object):
             self.make_eqn_file()
             self.make_aig_from_eqn()
             self.extract_data()
-            self.make_verilog()
-            self.create_quartus_files()
-            self.compile_verilog()
+            # self.make_verilog()
+            # self.create_quartus_files()
+            #self.compile_verilog()
 
         except Exception as e:
             raise e
@@ -47,48 +47,48 @@ class RunAll(object):
             expression = ''
             s = []  # sum
             n_attributes = 0
+            all_attributes = set()
             prev_line = ''
             with open(f'trees/{self.path}') as fin:
-                for line in fin.readlines():
-                    if 'cases (' in line:
-                        aux1 = line.find('(')
-                        aux2 = line.find(')')
-                        temp = line[aux1 + 1:aux2]
-                        n_attributes = temp.split(' ')[0]
+                lines = [line.strip('\n') for line in fin.readlines()]
+                line_start = [idx for (idx, line) in enumerate(lines) if ('Decision tree:' in line)][0] + 2 
+                line_end = [idx for (idx, line) in enumerate(lines[line_start:])  if line == '' ][0] + line_start
+                n_attributes = int([line.split('(')[1].split()[0] for line in lines if 'attributes)' in line][0])
+                
+                # casos em que C5.0 nao aprendeu!
+                if line_start == line_end:
+                    sop = lines[line_start-1].split('(')[0]
+                else:   
+                    sop = []
+                    prods = []
+                    prod_vars = []
+                    for line in lines[line_start:line_end]:
+                        
+                        is_leaf = '(' in line
+                        
+                        var, val = line.split('=')
+                        var_pos = len(var.split('X')[0])//4
+                        var = var.split('.')[-1].replace(' ','').replace(':','')
+                        val = val.split(':')[-2].replace(' ','')
+                        all_attributes.add(var)
+                        var = '!'*(val == '0')+var
+                        
+                        try:
+                            prod_vars[var_pos] = var
+                        except:
+                            prod_vars.append(var)
+                        
+                        if is_leaf:
+                            decision = line.split(':')[-1].split()[0]
+                            if decision == '1':
+                                prods.append('*'.join(prod_vars[:var_pos+1]))
 
-                    if len(line) > 1 and line[0] == ' ':
-                        if line[1] == '0':
-                            expression += '0'
-                        elif line[1] == '1':
-                            expression += '1'
-
-                    if 'X' in line:
-                        n = int(len(line.split('X')[0]) / 4)
-                        n_prev = int(len(prev_line.split('X')[0]) / 4)
-
-                        if ':' not in line:
-                            break
-                        if n <= n_prev:
-                            if prev_line.split(' (')[0][-1] == '1':
-                                expression += '+' + '*'.join(element for element in s)
-                                for i in range(n_prev - n + 1):
-                                    s.pop()
-                            elif len(s):
-                                s.pop()
-                        aux = line.replace(':', '').replace('.', '').replace(' ', '').split('=')
-                        if aux[1][0] == '0':
-                            s.append('!' + aux[0])
-                        else:
-                            s.append(aux[0])
-
-                    prev_line = line
-            if len(expression) > 0 and expression[0] == '+':
-                expression = expression[1:]
-
+                    sop = ' + '.join(prods)
+                expression = sop
+                
             with open(f'sop/{self.path.replace("tree", "eqn")}', 'w') as fout:
-                header = 'INORDER ='
-                for i in range(int(n_attributes) - 1):
-                    header += ' X' + str(i)
+                header = 'INORDER = '
+                header += ' '.join([f'X{i}' for i in range(n_attributes-1)])
                 header += ';\nOUTORDER = f1;\n'
                 final_expression = header + 'f1 = ' + expression + ';'
                 print(final_expression, file=fout)
@@ -120,9 +120,8 @@ class RunAll(object):
                     output_number = self.path[-5]
             print(f'&r aig/{self.path}; &ps; &mltest temp/temp_out_{output_number}.pla', file=fout)
 
-        file = open('temp/mltest_results.txt', 'w')
-        file.close()
-        os.system('./abc -F temp/mltest_script >> temp/mltest_results.txt')
+        mltest_out =  './mltest/' + self.path + '_mltest.txt'
+        os.system('./abc -F temp/mltest_script > ' + mltest_out)
 
         try:
             with open(f'sop_table_results.csv', 'r') as fin:
@@ -131,7 +130,7 @@ class RunAll(object):
             raise Exception(f'Error 5: {e}')
 
         try:
-            with open(f'sop_table_results.csv', 'w') as fout, open('temp/mltest_results.txt', 'r') as fin:
+            with open(f'sop_table_results.csv', 'w') as fout, open(mltest_out, 'r') as fin:
                 mltest_lines = fin.readlines()
                 try:
                     ands = mltest_lines[3].split()[8][:-4]
@@ -202,7 +201,7 @@ class RunAll(object):
                 if i == 21:
                     qsf_output += f'# Date created = {time}  {month} {day}, {year}\n'
                 elif i == 28:
-                    qsf_output += f'#		{project_name}_assignment_defaults.qdf\n'
+                    qsf_output += f'#       {project_name}_assignment_defaults.qdf\n'
                 elif i == 41:
                     qsf_output += f'set_global_assignment -name TOP_LEVEL_ENTITY {project_name}\n'
                 elif i == 43:
