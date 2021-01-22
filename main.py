@@ -45,6 +45,8 @@ def initialize():
         os.mkdir('aig')
     if not os.path.exists('verilog'):
         os.mkdir('verilog')
+    if not os.path.exists('mltest'):
+        os.mkdir('mltest')
 
     clear()
     open('sop_table_results.csv', 'x').close()
@@ -52,7 +54,7 @@ def initialize():
 
 def clear():
     os.system('rm c50_files/files/* trees/* temp/* pos/* pos/aig/* sop/* aig/* nohup* *.csv')
-    os.system('rm -r verilog/*out*')
+    os.system('rm -r verilog/*out* mltest/*')
 
 
 if __name__ == '__main__':

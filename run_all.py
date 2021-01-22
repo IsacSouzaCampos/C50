@@ -14,7 +14,7 @@ class RunAll(object):
             self.extract_data()
             # self.make_verilog()
             # self.create_quartus_files()
-            #self.compile_verilog()
+            # self.compile_verilog()
 
         except Exception as e:
             raise e
@@ -120,7 +120,7 @@ class RunAll(object):
                     output_number = self.path[-5]
             print(f'&r aig/{self.path}; &ps; &mltest temp/temp_out_{output_number}.pla', file=fout)
 
-        mltest_out =  './mltest/' + self.path + '_mltest.txt'
+        mltest_out = './mltest/' + self.path + '_mltest.txt'
         os.system('./abc -F temp/mltest_script > ' + mltest_out)
 
         try:
