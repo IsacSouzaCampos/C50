@@ -9,6 +9,8 @@ def main():
 
     errors = []
     for path in os.listdir('Benchmarks'):
+        if path == 'temp':
+            continue
         make_c50_files_results = make_c50_files.MakeC50Files().run_make_files(path)
         errors.append((path, make_c50_files_results[0]))
         number_of_outputs = make_c50_files_results[1]
@@ -18,10 +20,11 @@ def main():
 
         for tree in os.listdir('trees'):
             try:
-                print(f'tree = {tree}')
-                run_all.RunAll(tree).run()
+                if benchmarck_name == tree.split('_out_')[0]:
+                    run_all.RunAll(tree).run()
             except Exception as e:
                 errors.append((tree, e))
+        os.system('rm temp/*.pla')
 
     open('errors.csv', 'x').close()
     errors_output = open('errors.csv', 'w')

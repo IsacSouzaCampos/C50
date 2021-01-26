@@ -118,7 +118,7 @@ class RunAll(object):
                     output_number = self.path[-6] + self.path[-5]
                 else:
                     output_number = self.path[-5]
-            print(f'&r aig/{self.path}; &ps; &mltest temp/temp_out_{output_number}.pla', file=fout)
+            print(f'&r aig/{self.path}; &ps; &mltest temp/{self.base_name}.pla', file=fout)
 
         mltest_out = './mltest/' + self.path + '_mltest.txt'
         os.system('./abc -F temp/mltest_script > ' + mltest_out)

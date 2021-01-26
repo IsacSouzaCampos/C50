@@ -30,11 +30,11 @@ class MakeC50Files:
 						else:
 							break
 			with open('temp/collapse_script', 'w') as fout:
-				print('read_pla Benchmarks/'+_path+'; collapse; write_pla -m temp/temp.pla', file=fout)
+				print('read_pla Benchmarks/' + _path + f'; collapse; write_pla -m temp/{_path}', file=fout)
 			os.system('./abc -F temp/collapse_script')
 
 			number_of_outputs = 0
-			with open('temp/temp.pla', 'r') as fin:
+			with open(f'temp/{_path}', 'r') as fin:
 				temp_pla = fin.read()
 				for _line in temp_pla.splitlines():
 					if '.o' in _line:
@@ -42,7 +42,7 @@ class MakeC50Files:
 						break
 
 			for _i in range(number_of_outputs):
-				with open('temp/temp_out_'+str(_i)+'.pla', 'w') as fout:
+				with open(f'temp/{_path.replace(".pla", "")}_out_'+str(_i)+'.pla', 'w') as fout:
 					for _line in temp_pla.splitlines():
 						if _line[0] not in ['0', '1']:
 							if '#' in _line or '.e' in _line:
@@ -65,14 +65,14 @@ class MakeC50Files:
 		try:
 			number_of_outputs = self.split_outputs(path)
 			for i in range(number_of_outputs):
-				file_name = path.split('.')[0]
+				base_name = path.replace('.pla', '')
 
-				c50f_data_final_name = file_name + '_out_' + str(i) + '.data'
-				c50f_names_final_name = file_name + '_out_' + str(i) + '.names'
-				c50f_test_final_name = file_name + '_out_' + str(i) + '.test'
+				c50f_data_final_name = base_name + '_out_' + str(i) + '.data'
+				c50f_names_final_name = base_name + '_out_' + str(i) + '.names'
+				c50f_test_final_name = base_name + '_out_' + str(i) + '.test'
 
-				ftrain = open('temp/temp_out_'+str(i)+'.pla', 'r')
-				ftest = open('temp/temp_out_'+str(i)+'.pla', 'r')
+				ftrain = open(f'temp/{base_name}_out_'+str(i)+'.pla', 'r')
+				ftest = open(f'temp/{base_name}_out_'+str(i)+'.pla', 'r')
 
 				lines = ftrain.readlines()
 				lines_test = ftest.readlines()

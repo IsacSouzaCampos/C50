@@ -7,8 +7,8 @@ class TreeMaker(object):
         file_path = 'c50_files/files'
         for i in range(number_of_outputs):
             base_name = f'{benchmark_name}_out_{i}'
-            os.system('./c5.0 -f ' + file_path + '/' + base_name + ' > trees/' + base_name +
-                      '.tree')
+            os.system('./c5.0 -f ' + file_path + '/' + base_name + ' > trees/' + base_name + '.tree')
+
             remove = False
             with open('trees/' + base_name + '.tree') as fin:
                 lines = fin.readlines()
