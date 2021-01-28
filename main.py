@@ -24,7 +24,7 @@ def main():
                     run_all.RunAll(tree).run()
             except Exception as e:
                 errors.append((tree, e))
-        os.system('rm temp/*.pla')
+        # os.system('rm temp/*.pla')
 
     open('errors.csv', 'x').close()
     errors_output = open('errors.csv', 'w')

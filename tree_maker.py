@@ -6,7 +6,7 @@ class TreeMaker(object):
     def make_tree(benchmark_name, number_of_outputs):
         file_path = 'c50_files/files'
         for i in range(number_of_outputs):
-            base_name = f'{benchmark_name}_out_{i}'
+            base_name = f'{benchmark_name}_out_{i}_temp'
             os.system('./c5.0 -f ' + file_path + '/' + base_name + ' > trees/' + base_name + '.tree')
 
             remove = False

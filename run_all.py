@@ -44,11 +44,7 @@ class RunAll(object):
     def generate_logic(self):
         # print(f'generate_logic ({input_path})')
         try:
-            expression = ''
-            s = []  # sum
-            n_attributes = 0
             all_attributes = set()
-            prev_line = ''
             with open(f'trees/{self.path}') as fin:
                 lines = [line.strip('\n') for line in fin.readlines()]
                 line_start = [idx for (idx, line) in enumerate(lines) if ('Decision tree:' in line)][0] + 2 
@@ -112,13 +108,7 @@ class RunAll(object):
     def extract_data(self):
         # print(f'extract_data ({self.path})')
         with open('temp/mltest_script', 'w') as fout:
-            output_number = ''
-            if self.path[-5].isnumeric():
-                if self.path[-6].isnumeric():
-                    output_number = self.path[-6] + self.path[-5]
-                else:
-                    output_number = self.path[-5]
-            print(f'&r aig/{self.path}; &ps; &mltest temp/{self.base_name}.pla', file=fout)
+            print(f'&r aig/{self.path}; &ps; &mltest temp/{self.base_name.replace("_temp", "")}.pla', file=fout)
 
         mltest_out = './mltest/' + self.path + '_mltest.txt'
         os.system('./abc -F temp/mltest_script > ' + mltest_out)
