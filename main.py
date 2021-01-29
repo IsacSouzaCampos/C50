@@ -37,7 +37,7 @@ def main():
             except Exception as e:
                 errors.append((base_name, e))
 
-        # os.system('rm temp/*.pla')
+        os.system('rm temp/*.pla')
 
     open('errors.csv', 'x').close()
     errors_output = open('errors.csv', 'w')
