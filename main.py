@@ -15,7 +15,10 @@ def main():
 
         original_base_name = path.replace('.pla', '')
 
-        number_of_outputs = split_outputs(path)
+        try:
+            number_of_outputs = split_outputs(path)
+        except Exception as e:
+            errors.append((base_name, e))
 
         for i in range(number_of_outputs):
             try:
