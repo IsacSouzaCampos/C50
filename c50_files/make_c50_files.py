@@ -21,45 +21,6 @@ class MakeC50Files:
 			raise e
 
 	@staticmethod
-	def split_outputs(_path):
-		try:
-			with open(f'Benchmarks/{_path}', 'r') as fin:
-				for line in fin.readlines():
-					if '.i' in line:
-						if int(line.split(' ')[1]) > 16:
-							raise Exception('Numero de inputs superior a 16')
-						else:
-							break
-			with open('temp/collapse_script', 'w') as fout:
-				print('read_pla Benchmarks/' + _path + f'; collapse; write_pla -m temp/{_path}', file=fout)
-			os.system('./abc -F temp/collapse_script')
-
-			number_of_outputs = 0
-			with open(f'temp/{_path}', 'r') as fin:
-				temp_pla = fin.read()
-				for _line in temp_pla.splitlines():
-					if '.o' in _line:
-						number_of_outputs = int(_line.split()[1])
-						break
-
-			for _i in range(number_of_outputs):
-				with open(f'temp/{_path.replace(".pla", "")}_out_'+str(_i)+'.pla', 'w') as fout:
-					for _line in temp_pla.splitlines():
-						if _line[0] not in ['0', '1']:
-							if '#' in _line or '.e' in _line:
-								continue
-							print(_line, file=fout)
-						else:
-							_lines = _line.split()
-							print(_lines[0]+' '+_lines[1][_i], file=fout)
-					print('.e', file=fout)
-
-			return number_of_outputs
-
-		except Exception as e:
-			raise e
-
-	@staticmethod
 	def is_balanced(full_path):
 		from shutil import copyfile
 		copyfile(full_path, full_path.replace('.pla', '_temp.pla'))
@@ -76,7 +37,8 @@ class MakeC50Files:
 						else:
 							number_of_1 += 1
 			# print(f'{_path}:\nnumber of 0\'s = {number_of_0}\nnumber of 1\'s = {number_of_1}\n=============')
-		return math.fabs(number_of_0 - number_of_1) < max(number_of_0, number_of_1)/10, number_of_0
+		# math.fabs(number_of_0 - number_of_1) < max(number_of_0, number_of_1) / 10, number_of_0
+		return max(number_of_0, number_of_1) / (number_of_0 + number_of_1), number_of_0
 
 	@staticmethod
 	def disbalance(full_path, number_of_0):
@@ -97,57 +59,55 @@ class MakeC50Files:
 				else:
 					final_table += line
 
-		with open(full_path.replace('.pla', '_temp.pla'), 'w') as fout:
+		with open(full_path, 'w') as fout:
 			print(final_table[:-1], file=fout)
 
-	def run_make_files(self, path):
+	def run_make_files(self, base_name):
 		errors = []
-		number_of_outputs = 0
+		output_proportion = float()
 
 		try:
-			base_name = path.replace('.pla', '')
-			number_of_outputs = self.split_outputs(path)
+			output_proportion, number_of_0 = self.is_balanced('temp/' + base_name + '.pla')
 
-			for i in range(number_of_outputs):
-				is_balanced, number_of_0 = self.is_balanced('temp/' + base_name + '_out_' + str(i) + '.pla')
-				if is_balanced:
-					self.disbalance('temp/' + base_name + '_out_' + str(i) + '.pla', number_of_0)
+			if output_proportion < 0.6:
+				print(base_name + '_temp.pla DISBALANCED')
+				self.disbalance('temp/' + base_name + '_temp.pla', number_of_0)
 
-				c50f_data_final_name = base_name + '_out_' + str(i) + '_temp.data'
-				c50f_names_final_name = base_name + '_out_' + str(i) + '_temp.names'
-				c50f_test_final_name = base_name + '_out_' + str(i) + '_temp.test'
+			c50f_data_final_name = base_name + '_temp.data'
+			c50f_names_final_name = base_name + '_temp.names'
+			c50f_test_final_name = base_name + '_temp.test'
 
-				ftrain = open(f'temp/{base_name}_out_'+str(i)+'_temp.pla', 'r')
-				ftest = open(f'temp/{base_name}_out_'+str(i)+'_temp.pla', 'r')
+			ftrain = open(f'temp/{base_name}' + '_temp.pla', 'r')
+			ftest = open(f'temp/{base_name}' + '_temp.pla', 'r')
 
-				lines = ftrain.readlines()
-				lines_test = ftest.readlines()
-				ftrain.close()
-				ftest.close()
+			lines = ftrain.readlines()
+			lines_test = ftest.readlines()
+			ftrain.close()
+			ftest.close()
 
-				train_data = []
-				test_data = []
-				for line in lines:
-					if '.' in line or '#' in line:
-						continue
-					x, y = line.split()
-					x = [_ for _ in x]
-					train_data.append(x+[y])
+			train_data = []
+			test_data = []
+			for line in lines:
+				if '.' in line or '#' in line:
+					continue
+				x, y = line.split()
+				x = [_ for _ in x]
+				train_data.append(x+[y])
 
-				for line in lines_test:
-					if '.' in line or '#' in line:
-						continue
-					x, y = line.split()
-					x = [_ for _ in x]
-					test_data.append(x+[y])
+			for line in lines_test:
+				if '.' in line or '#' in line:
+					continue
+				x, y = line.split()
+				x = [_ for _ in x]
+				test_data.append(x+[y])
 
-				train_data = np.array(train_data)
-				test_data = np.array(test_data)
-				np.savetxt('c50_files/files/'+c50f_data_final_name, train_data, fmt='%c', delimiter=',')
-				np.savetxt('c50_files/files/'+c50f_test_final_name, test_data, fmt='%c', delimiter=',')
-				self.save_names_file(nfeat=train_data.shape[1]-1, filename='c50_files/files/'+c50f_names_final_name)
+			train_data = np.array(train_data)
+			test_data = np.array(test_data)
+			np.savetxt('c50_files/files/' + c50f_data_final_name, train_data, fmt='%c', delimiter=',')
+			np.savetxt('c50_files/files/' + c50f_test_final_name, test_data, fmt='%c', delimiter=',')
+			self.save_names_file(nfeat=train_data.shape[1]-1, filename='c50_files/files/' + c50f_names_final_name)
 
 		except Exception as e:
-			errors.append((path, e))
+			errors.append((base_name, e))
 
-		return errors, number_of_outputs
+		return errors, output_proportion

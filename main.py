@@ -8,22 +8,32 @@ def main():
     initialize()
 
     errors = []
+    graphic_data = []
     for path in os.listdir('Benchmarks'):
         if path == 'temp':
             continue
-        make_c50_files_results = make_c50_files.MakeC50Files().run_make_files(path)
-        errors.append((path, make_c50_files_results[0]))
-        number_of_outputs = make_c50_files_results[1]
-        benchmarck_name = path.replace('.pla', '')
 
-        tree_maker.TreeMaker().make_tree(benchmarck_name, number_of_outputs)
+        original_base_name = path.replace('.pla', '')
 
-        for tree in os.listdir('trees'):
+        number_of_outputs = split_outputs(path)
+
+        for i in range(number_of_outputs):
             try:
-                if benchmarck_name == tree.split('_out_')[0]:
-                    run_all.RunAll(tree).run()
+                base_name = original_base_name + '_out_' + str(i)
+
+                make_c50_files_results = make_c50_files.MakeC50Files().run_make_files(base_name)
+                errors.append((path, make_c50_files_results[0]))
+                output_proportion = make_c50_files_results[1]
+
+                base_name = base_name + '_temp'
+
+                tree_maker.TreeMaker().make_tree(base_name)
+                acc = run_all.RunAll(base_name).run()
+
+                graphic_data.append((output_proportion, acc))
             except Exception as e:
-                errors.append((tree, e))
+                errors.append((base_name, e))
+
         # os.system('rm temp/*.pla')
 
     open('errors.csv', 'x').close()
@@ -33,6 +43,10 @@ def main():
         print(e)
         print(f'{e[0]}, {e[1]}', file=errors_output)
     errors_output.close()
+
+    with open('graphic_data.csv', 'w') as fout:
+        for data in graphic_data:
+            print(data[0], data[1], file=fout)
 
 
 def initialize():
@@ -58,6 +72,45 @@ def initialize():
 def clear():
     os.system('rm c50_files/files/* trees/* temp/* pos/* pos/aig/* sop/* aig/* nohup* *.csv')
     os.system('rm -r verilog/*out* mltest/*')
+
+
+def split_outputs(_path):
+    try:
+        with open(f'Benchmarks/{_path}', 'r') as fin:
+            for line in fin.readlines():
+                if '.i' in line:
+                    if int(line.split(' ')[1]) > 16:
+                        raise Exception('Numero de inputs superior a 16')
+                    else:
+                        break
+        with open('temp/collapse_script', 'w') as fout:
+            print('read_pla Benchmarks/' + _path + f'; collapse; write_pla -m temp/{_path}', file=fout)
+        os.system('./abc -F temp/collapse_script')
+
+        number_of_outputs = 0
+        with open(f'temp/{_path}', 'r') as fin:
+            temp_pla = fin.read()
+            for _line in temp_pla.splitlines():
+                if '.o' in _line:
+                    number_of_outputs = int(_line.split()[1])
+                    break
+
+        for _i in range(number_of_outputs):
+            with open(f'temp/{_path.replace(".pla", "")}_out_'+str(_i)+'.pla', 'w') as fout:
+                for _line in temp_pla.splitlines():
+                    if _line[0] not in ['0', '1']:
+                        if '#' in _line or '.e' in _line:
+                            continue
+                        print(_line, file=fout)
+                    else:
+                        _lines = _line.split()
+                        print(_lines[0]+' '+_lines[1][_i], file=fout)
+                print('.e', file=fout)
+
+        return number_of_outputs
+
+    except Exception as e:
+        raise e
 
 
 if __name__ == '__main__':
