@@ -68,10 +68,10 @@ class MakeC50Files:
 
 		try:
 			output_proportion, number_of_0 = self.is_balanced('temp/' + base_name + '.pla')
-
-			if output_proportion < 0.6:
-				print(base_name + '_temp.pla DISBALANCED')
-				self.disbalance('temp/' + base_name + '_temp.pla', number_of_0)
+			#
+			# if output_proportion < 0.6:
+			# 	print(base_name + '_temp.pla DISBALANCED')
+			# 	self.disbalance('temp/' + base_name + '_temp.pla', number_of_0)
 
 			c50f_data_final_name = base_name + '_temp.data'
 			c50f_names_final_name = base_name + '_temp.names'

@@ -30,7 +30,7 @@ def main():
                 tree_maker.TreeMaker().make_tree(base_name)
                 acc = run_all.RunAll(base_name).run()
 
-                graphic_data.append((output_proportion, acc))
+                graphic_data.append((base_name.replace('_temp', ''), output_proportion, acc))
             except Exception as e:
                 errors.append((base_name, e))
 
@@ -46,7 +46,7 @@ def main():
 
     with open('graphic_data.csv', 'w') as fout:
         for data in graphic_data:
-            print(data[0], data[1], file=fout)
+            print(f'{data[0]},{data[1]},{data[2]}', file=fout)
 
 
 def initialize():
