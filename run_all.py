@@ -11,9 +11,8 @@ class RunAll(object):
             self.make_eqn_file()
             self.make_aig_from_eqn()
             acc = self.extract_data()
-            # self.make_verilog()
-            # self.create_quartus_files()
-            # self.compile_verilog()
+            self.make_verilog()
+            self.compile_verilog()
         except Exception as e:
             raise e
 
@@ -156,57 +155,6 @@ class RunAll(object):
             print(verilog, file=fout)
 
         print(f'{verilog_file} CREATED')
-
-    def create_quartus_files(self):
-        month_list = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September',
-                      'October', 'November', 'December']
-
-        project_name = self.base_name
-
-        time = datetime.now().strftime("%H:%M:%S")
-
-        month_number = datetime.today().date().month
-        month = month_list[month_number - 1]
-
-        day = str(datetime.today().day).zfill(2)
-
-        year = datetime.today().year
-
-        with open('verilog/QPF.qpf', 'r') as qpf, open('verilog/QSF.qsf', 'r') as qsf:
-            qpf_lines = qpf.readlines()
-            qsf_lines = qsf.readlines()
-
-        qpf_output = ''
-        for i in range(len(qpf_lines)):
-            if i == 21:
-                qpf_output += f'# Date created = {time}  {month} {day}, {year}\n'
-            elif i == 26:
-                qpf_output += f'DATE = \"{time}  {month} {day}, {year}\"\n'
-            elif i == 30:
-                qpf_output += f'PROJECT_REVISION = \"{project_name}\"'
-            else:
-                qpf_output += qpf_lines[i]
-
-            qsf_output = ''
-            for i in range(len(qsf_lines)):
-                if i == 21:
-                    qsf_output += f'# Date created = {time}  {month} {day}, {year}\n'
-                elif i == 28:
-                    qsf_output += f'#       {project_name}_assignment_defaults.qdf\n'
-                elif i == 41:
-                    qsf_output += f'set_global_assignment -name TOP_LEVEL_ENTITY {project_name}\n'
-                elif i == 43:
-                    qsf_output += f'set_global_assignment -name PROJECT_CREATION_TIME_DATE \"{time}  {month.upper()} ' \
-                                  f'{day}, {year}\"\n'
-                else:
-                    qsf_output += qsf_lines[i]
-
-            with open(f'verilog/{self.base_name}/{self.base_name}.qpf', 'w') as qpf, \
-                    open(f'verilog/{self.base_name}/{self.base_name}.qsf', 'w') as qsf:
-                print(qpf_output, file=qpf)
-                print(qsf_output, file=qsf)
-
-        print(f'{self.base_name} QUARTUS FILES CREATED')
 
     def compile_verilog(self):
         os.system(f'quartus_map verilog/{self.base_name}/{self.base_name}')
