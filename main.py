@@ -9,12 +9,22 @@ def main():
 
     errors = []
     graphic_data = []
-    for path in os.listdir('Benchmarks'):
+
+    benchmarck_dir = 'Benchmarks'
+    for path in os.listdir(benchmarck_dir):
         if path == 'temp':
             continue
+        if path[0].isnumeric():
+            os.rename(f'{benchmarck_dir}/{path}', f'{benchmarck_dir}/c{path}')
+            path = f'c{path}'
+        if '-' in path:
+            os.rename(f'{benchmarck_dir}/{path}', f'{benchmarck_dir}/{path.replace("-", "_")}')
+            path = path.replace('-', '_')
 
         original_base_name = path.replace('.pla', '')
 
+        base_name = str()
+        number_of_outputs = int()
         try:
             number_of_outputs = split_outputs(path)
         except Exception as e:

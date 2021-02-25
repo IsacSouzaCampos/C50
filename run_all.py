@@ -149,7 +149,7 @@ class RunAll(object):
         with open(f'{directory}/{verilog_file}', 'r') as fin:
             verilog = fin.read()
 
-        verilog = verilog.replace('\\aig/', '')
+        verilog = verilog.replace('\\aig/', '').replace('-', '_')
 
         with open(f'{directory}/{verilog_file}', 'w') as fout:
             print(verilog, file=fout)
