@@ -12,7 +12,7 @@ class RunAll(object):
             self.make_aig_from_eqn()
             acc = self.extract_data()
             self.make_verilog()
-            self.compile_verilog()
+            # self.compile_verilog()
         except Exception as e:
             raise e
 
@@ -137,19 +137,20 @@ class RunAll(object):
         return acc
 
     def make_verilog(self):
-        directory = f'verilog/{self.base_name}'
-        os.mkdir(directory)
+        directory = f'verilog/{self.base_name.split("_out_")[0]}'
+        # os.mkdir(directory)
 
-        verilog_file = self.base_name + '.v'
+        verilog_file = self.base_name.replace('_temp', '') + '.v'
 
         with open('temp/make_verilog_script', 'w') as fout:
-            print(f'read_aiger aig/{self.base_name}.aig\nwrite_verilog {directory}/{verilog_file}', file=fout)
+            print(f'read_aiger aig/{self.base_name}.aig\nwrite_verilog {directory}/{verilog_file}',
+                  file=fout)
         os.system('./abc -F temp/make_verilog_script')
 
         with open(f'{directory}/{verilog_file}', 'r') as fin:
             verilog = fin.read()
 
-        verilog = verilog.replace('\\aig/', '').replace('-', '_')
+        verilog = verilog.replace('\\aig/', '').replace('-', '_').replace('_temp', '')
 
         with open(f'{directory}/{verilog_file}', 'w') as fout:
             print(verilog, file=fout)
