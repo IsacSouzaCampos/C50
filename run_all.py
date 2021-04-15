@@ -12,7 +12,7 @@ class RunAll(object):
             self.make_aig_from_eqn()
             acc = self.extract_data()
             self.make_verilog()
-            # self.compile_verilog()
+            self.compile_verilog()
         except Exception as e:
             raise e
 
@@ -95,6 +95,7 @@ class RunAll(object):
             with open('temp/make_aig_from_eqn_script', 'w') as fout:
                 print(f'read_eqn sop/{self.base_name}.eqn', file=fout)
                 print('strash', file=fout)
+                # print('compress2rs', file=fout)
                 print(f'write_aiger aig/{self.base_name}.aig', file=fout)
             os.system('./abc -F temp/make_aig_from_eqn_script')
 
@@ -158,7 +159,7 @@ class RunAll(object):
         print(f'{verilog_file} CREATED')
 
     def compile_verilog(self):
-        os.system(f'quartus_map verilog/{self.base_name}/{self.base_name}')
-        os.system(f'quartus_fit verilog/{self.base_name}/{self.base_name}')
-        os.system(f'quartus_sta verilog/{self.base_name}/{self.base_name}')
-        os.system(f'quartus_eda verilog/{self.base_name}/{self.base_name}')
+        os.system(f'quartus_map verilog/{self.base_name.split("_out_")[0]}/{self.base_name}')
+        os.system(f'quartus_fit verilog/{self.base_name.split("_out_")[0]}/{self.base_name}')
+        os.system(f'quartus_sta verilog/{self.base_name.split("_out_")[0]}/{self.base_name}')
+        os.system(f'quartus_eda verilog/{self.base_name.split("_out_")[0]}/{self.base_name}')

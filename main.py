@@ -12,7 +12,7 @@ def main():
 
     benchmarck_dir = 'Benchmarks'
     for path in os.listdir(benchmarck_dir):
-        if path == 'temp':
+        if '.pla' not in path:
             continue
         if path[0].isnumeric():
             os.rename(f'{benchmarck_dir}/{path}', f'{benchmarck_dir}/c{path}')
@@ -48,7 +48,7 @@ def main():
             except Exception as e:
                 errors.append((base_name, e))
 
-        # os.system('rm temp/*.pla')
+        os.system('rm temp/*.pla')
 
     open('errors.csv', 'x').close()
     errors_output = open('errors.csv', 'w')
