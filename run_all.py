@@ -1,5 +1,10 @@
 import os
+import numpy as np
+import train_trees
 from datetime import datetime
+
+
+TREE_FILES_PATH = 'c50_files/files'
 
 
 class RunAll(object):
@@ -12,82 +17,27 @@ class RunAll(object):
             self.make_aig_from_eqn()
             acc = self.extract_data()
             self.make_verilog()
-            self.compile_verilog()
+            # self.compile_verilog()
         except Exception as e:
             raise e
 
         return acc
 
     def make_eqn_file(self):
-        print(f'make_eqn_file ({self.base_name})')
-        try:
-            self.generate_logic()
+        _train_data = np.loadtxt(f'{TREE_FILES_PATH}/{self.base_name}_temp.data', dtype='int', delimiter=',')
+        test_data = _train_data
+        feature_names = list(map(str, list(range(_train_data.shape[1]))))
+        tree, acc_tree = train_trees.trainTree(_train_data, test_data)
 
-            output_path = f'sop/{self.base_name}.eqn'
+        sop = train_trees.pythonizeSOP(train_trees.treeToSOP(tree, feature_names))
 
-            remove = False
-            with open(output_path) as fin:
-                lines = fin.readlines()
+        x_amt = len(_train_data[0]) - 1
+        sop_header = 'INORDER = '
+        sop_header += ' '.join([f'x{i}' for i in range(x_amt)]) + ';\nOUTORDER = z0;\nz0 = '
+        sop = sop_header + sop.replace('x0', 'x').replace('or', '+').replace('and', '*').replace('not', '!') + ';'
 
-                # c5.0 não aprendeu a árvore
-                if 'f1 = ;' in lines[2]:
-                    remove = True
-            if remove:
-                os.system(f'rm {output_path}')
-                raise Exception('C5.0 não aprendeu a árvore')
-
-        except Exception as e:
-            raise Exception(f'Error 2: {e}')
-
-    def generate_logic(self):
-        print(f'generate_logic ({self.base_name})')
-        try:
-            all_attributes = set()
-            with open(f'trees/{self.base_name}.tree') as fin:
-                lines = [line.strip('\n') for line in fin.readlines()]
-                line_start = [idx for (idx, line) in enumerate(lines) if ('Decision tree:' in line)][0] + 2 
-                line_end = [idx for (idx, line) in enumerate(lines[line_start:]) if line == ''][0] + line_start
-                n_attributes = int([line.split('(')[1].split()[0] for line in lines if 'attributes)' in line][0])
-                
-                # casos em que C5.0 nao aprendeu!
-                if line_start == line_end:
-                    sop = lines[line_start-1].split('(')[0]
-                else:
-                    prods = []
-                    prod_vars = []
-                    for line in lines[line_start:line_end]:
-                        
-                        is_leaf = '(' in line
-                        
-                        var, val = line.split('=')
-                        var_pos = len(var.split('X')[0])//4
-                        var = var.split('.')[-1].replace(' ', '').replace(':', '')
-                        val = val.split(':')[-2].replace(' ', '')
-                        all_attributes.add(var)
-                        var = '!'*(val == '0')+var
-                        
-                        try:
-                            prod_vars[var_pos] = var
-                        except:
-                            prod_vars.append(var)
-                        
-                        if is_leaf:
-                            decision = line.split(':')[-1].split()[0]
-                            if decision == '1':
-                                prods.append('*'.join(prod_vars[:var_pos+1]))
-
-                    sop = ' + '.join(prods)
-                expression = sop
-                
-            with open(f'sop/{self.base_name}.eqn', 'w') as fout:
-                header = 'INORDER = '
-                header += ' '.join([f'X{i}' for i in range(n_attributes-1)])
-                header += ';\nOUTORDER = f1;\n'
-                final_expression = header + 'f1 = ' + expression + ';'
-                print(final_expression, file=fout)
-
-        except Exception as e:
-            raise Exception(f'Error 3: {e}')
+        with open(f'sop/{self.base_name}.eqn', 'w') as fout:
+            print(sop, file=fout)
 
     def make_aig_from_eqn(self):
         print(f'make_aig_from_eqn ({self.base_name})')

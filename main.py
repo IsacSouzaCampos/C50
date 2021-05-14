@@ -39,12 +39,12 @@ def main():
                 errors.append((path, make_c50_files_results[0]))
                 output_proportion = make_c50_files_results[1]
 
-                base_name = base_name + '_temp'
+                # base_name = base_name + '_temp'
 
-                tree_maker.TreeMaker().make_tree(base_name)
+                # tree_maker.TreeMaker().make_tree(base_name)
                 acc = run_all.RunAll(base_name).run()
 
-                graphic_data.append((base_name.replace('_temp', ''), output_proportion, acc))
+                graphic_data.append((base_name, output_proportion, acc))
             except Exception as e:
                 errors.append((base_name, e))
 
