@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import train_trees
+import create_top_level_entities
 from datetime import datetime
 
 
@@ -24,20 +25,24 @@ class RunAll(object):
         return acc
 
     def make_eqn_file(self):
+        print('1')
         _train_data = np.loadtxt(f'{TREE_FILES_PATH}/{self.base_name}_temp.data', dtype='int', delimiter=',')
         test_data = _train_data
         feature_names = list(map(str, list(range(_train_data.shape[1]))))
         tree, acc_tree = train_trees.trainTree(_train_data, test_data)
+        print('2')
 
         sop = train_trees.pythonizeSOP(train_trees.treeToSOP(tree, feature_names))
+        print('3')
 
         x_amt = len(_train_data[0]) - 1
         sop_header = 'INORDER = '
-        sop_header += ' '.join([f'x{i}' for i in range(x_amt)]) + ';\nOUTORDER = z0;\nz0 = '
-        sop = sop_header + sop.replace('x0', 'x').replace('or', '+').replace('and', '*').replace('not', '!') + ';'
+        sop_header += ' '.join([f'x{i:02d}' for i in range(x_amt)]) + ';\nOUTORDER = z0;\nz0 = '
+        sop = sop_header + sop + ';'
 
         with open(f'sop/{self.base_name}.eqn', 'w') as fout:
             print(sop, file=fout)
+        print(sop)
 
     def make_aig_from_eqn(self):
         print(f'make_aig_from_eqn ({self.base_name})')
@@ -89,7 +94,6 @@ class RunAll(object):
 
     def make_verilog(self):
         directory = f'verilog/{self.base_name.split("_out_")[0]}'
-        # os.mkdir(directory)
 
         verilog_file = self.base_name.replace('_temp', '') + '.v'
 

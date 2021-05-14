@@ -45,13 +45,13 @@ def pythonizeSOP(sop):
 		and_expr = '('
 		for attr, negated in ands:
 			if negated == 'true':
-				and_list.append('not(x%s)' % attr)
+				and_list.append(f'!(x{int(attr):02d})')
 			else:
-				and_list.append('(x%s)' % attr)
-		and_expr += ' and '.join(and_list)
+				and_list.append(f'!(x{int(attr):02d})')
+		and_expr += ' * '.join(and_list)
 		and_expr += ')'
 		or_list.append(and_expr)
-	expr = '(%s)' % (' or '.join(or_list))
+	expr = f'({" + ".join(or_list)})'
 	return expr
 
 
@@ -101,7 +101,7 @@ def trainMajorityRF(train_data, test_data, test2_data, num_trees = 100, apply_SK
 	votes = []
 	votes2 = []
 	for i in range(num_trees):
-		cols_idx = np.random.choice(range(num_feats),num_feats - num_feats_sub)
+		cols_idx = np.random.choice(range(num_feats), num_feats - num_feats_sub)
 
 		Xtr_sub = np.array(Xtr_new)
 		Xtr_sub[:,cols_idx] = 1
@@ -109,7 +109,7 @@ def trainMajorityRF(train_data, test_data, test2_data, num_trees = 100, apply_SK
 		if useDefaultDepth == 1:
 			tree = DecisionTreeClassifier().fit(Xtr_sub, ytr)
 		else:
-			tree = DecisionTreeClassifier(max_depth = depth).fit(Xtr_sub, ytr)
+			tree = DecisionTreeClassifier(max_depth=depth).fit(Xtr_sub, ytr)
 		trees.append(tree)
 		votes.append(tree.predict(Xte))
 		votes2.append(tree.predict(Xte2))
@@ -124,17 +124,17 @@ def trainMajorityRF(train_data, test_data, test2_data, num_trees = 100, apply_SK
 	return trees, acc, acc2
 
 
-def eval_single( d, eqn_str):
+def eval_single(d, eqn_str):
 	eqn_str_orig = eqn_str
 
 	for i, d_ in enumerate(d):
-		eqn_str = eqn_str.replace('x%d)' % (i), (str(d_)+')'))
+		eqn_str = eqn_str.replace('x%d)' % i, (str(d_)+')'))
 
 	return int(eval(eqn_str))
 
 
 def eval_equation(eqn_str, data):
-	X, y = data[:,:-1], data[:,-1]
+	X, y = data[:, :-1], data[:, -1]
 	ypred = np.apply_along_axis(eval_single, 1,  X, eqn_str)
 	return str((np.equal(ypred, y, dtype=int)).mean())
 

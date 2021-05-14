@@ -1,7 +1,7 @@
-import tree_maker
-import run_all
-from c50_files import make_c50_files
 import os
+import run_all
+import create_top_level_entities
+from c50_files import make_c50_files
 
 
 def main():
@@ -47,6 +47,8 @@ def main():
                 graphic_data.append((base_name, output_proportion, acc))
             except Exception as e:
                 errors.append((base_name, e))
+
+        create_top_level_entities.create_top_level_entity(original_base_name)
 
         os.system('rm temp/*.pla')
 
