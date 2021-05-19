@@ -1,7 +1,7 @@
 import os
 import run_all
 import create_top_level_entities
-from c50_files import make_c50_files
+import numpy as np
 
 
 def main():
@@ -14,43 +14,35 @@ def main():
     for path in os.listdir(benchmarck_dir):
         if '.pla' not in path:
             continue
-        if path[0].isnumeric():
-            os.rename(f'{benchmarck_dir}/{path}', f'{benchmarck_dir}/c{path}')
-            path = f'c{path}'
-        if '-' in path:
-            os.rename(f'{benchmarck_dir}/{path}', f'{benchmarck_dir}/{path.replace("-", "_")}')
-            path = path.replace('-', '_')
 
         original_base_name = path.replace('.pla', '')
         os.mkdir(f'verilog/{original_base_name}')
 
-        base_name = str()
-        number_of_outputs = int()
-        try:
-            number_of_outputs = split_outputs(path)
-        except Exception as e:
-            errors.append((base_name, e))
+        # number_of_outputs = split_and_collapse(path)
+        split_and_collapse(path)
+        x, y = np.loadtxt(f'temp/{path}', dtype='str', comments=".", skiprows=1, unpack=True)
+        x = [list(_x) for _x in x]
+        x = np.asarray(x).astype('uint8')
+        y = [list(_y) for _y in y]
+        y = np.asarray(y).astype('uint8')
 
-        for i in range(number_of_outputs):
+        feature_names = list(map(str, list(range(x.shape[1]))))
+
+        base_name = str()
+
+        for i in range(y.shape[1]):
             try:
                 base_name = original_base_name + '_out_' + str(i)
 
-                make_c50_files_results = make_c50_files.MakeC50Files().run_make_files(base_name)
-                errors.append((path, make_c50_files_results[0]))
-                output_proportion = make_c50_files_results[1]
+                acc = run_all.RunAll(base_name, x, y[:, i], feature_names).run()
 
-                # base_name = base_name + '_temp'
-
-                # tree_maker.TreeMaker().make_tree(base_name)
-                acc = run_all.RunAll(base_name).run()
-
-                graphic_data.append((base_name, output_proportion, acc))
+                graphic_data.append((base_name, acc))
             except Exception as e:
                 errors.append((base_name, e))
 
-        create_top_level_entities.create_top_level_entity(original_base_name)
+        # create_top_level_entities.create_top_level_entity(original_base_name)
 
-        os.system('rm temp/*.pla')
+        # os.system('rm temp/*.pla')
 
     open('errors.csv', 'x').close()
     errors_output = open('errors.csv', 'w')
@@ -60,14 +52,8 @@ def main():
         print(f'{e[0]}, {e[1]}', file=errors_output)
     errors_output.close()
 
-    with open('graphic_data.csv', 'w') as fout:
-        for data in graphic_data:
-            print(f'{data[0]},{data[1]},{data[2]}', file=fout)
-
 
 def initialize():
-    if not os.path.exists('c50_files/files'):
-        os.mkdir('c50_files/files')
     if not os.path.exists('temp'):
         os.mkdir('temp')
     if not os.path.exists('trees'):
@@ -90,7 +76,7 @@ def clear():
     os.system('rm -r verilog/* mltest/*')
 
 
-def split_outputs(_path):
+def split_and_collapse(_path):
     try:
         with open(f'Benchmarks/{_path}', 'r') as fin:
             for line in fin.readlines():
@@ -112,7 +98,7 @@ def split_outputs(_path):
                     break
 
         for _i in range(number_of_outputs):
-            with open(f'temp/{_path.replace(".pla", "")}_out_'+str(_i)+'.pla', 'w') as fout:
+            with open(f'temp/{_path.replace(".pla", "")}_out_' + str(_i) + '.pla', 'w') as fout:
                 for _line in temp_pla.splitlines():
                     if _line[0] not in ['0', '1']:
                         if '#' in _line or '.e' in _line:
@@ -120,7 +106,7 @@ def split_outputs(_path):
                         print(_line, file=fout)
                     else:
                         _lines = _line.split()
-                        print(_lines[0]+' '+_lines[1][_i], file=fout)
+                        print(_lines[0] + ' ' + _lines[1][_i], file=fout)
                 print('.e', file=fout)
 
         return number_of_outputs

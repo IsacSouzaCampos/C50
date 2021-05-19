@@ -31,7 +31,7 @@ def fillWithZeroes(X, X_new):
 		i += 1
 
 	return X_new2
-				
+
 
 def pythonizeSOP(sop):
 	or_list = []
@@ -47,7 +47,7 @@ def pythonizeSOP(sop):
 			if negated == 'true':
 				and_list.append(f'!(x{int(attr):02d})')
 			else:
-				and_list.append(f'!(x{int(attr):02d})')
+				and_list.append(f'(x{int(attr):02d})')
 		and_expr += ' * '.join(and_list)
 		and_expr += ')'
 		or_list.append(and_expr)
@@ -161,7 +161,7 @@ def treeToSOP(tree, featureNames):
 		else:
 			if np.argmax(tree_.value[node]) == 1:
 				ors.append(deepcopy(expression))
-			
+
 	recurse(0, 1, [])
 
 	return ors
@@ -175,39 +175,26 @@ def forestToSOP(forest, featureNames):
 	return sops
 
 
-def trainTree(train_data, test_data, apply_SKB=0, apply_SP=0, score_f="chi2", k=10, percent=40, depth=10, useDefaultDepth=1):
-	Xtr, ytr = train_data[:, :-1], train_data[:, -1]
-	Xte, yte = test_data[:, :-1], test_data[:, -1]
-	Xtr_new = deepcopy(Xtr)
-
-	if apply_SKB == 1:
-		selector = SelectKBest(function_mappings[score_f], k=k)
-		selector.fit(Xtr, ytr)
-		Xtr_new = selector.transform(Xtr)
-		Xtr_new = fillWithZeroes(Xtr, Xtr_new)
-
-	if apply_SP == 1:
-		selector = SelectPercentile(function_mappings[score_f], percentile=percent)
-		selector.fit(Xtr, ytr)
-		Xtr_new = selector.transform(Xtr)
-		Xtr_new = fillWithZeroes(Xtr, Xtr_new)
-
-	if useDefaultDepth == 1:
-		tree = DecisionTreeClassifier().fit(Xtr_new, ytr)
+def trainTree(Xtr, ytr, max_depth=0):
+	if max_depth == 0:
+		tree = DecisionTreeClassifier().fit(Xtr, ytr)
 	else:
-		tree = DecisionTreeClassifier(max_depth=depth).fit(Xtr_new, ytr)
-	ypred_tree = tree.predict(Xte)
-	acc_tree = (ypred_tree == yte).mean()
+		tree = DecisionTreeClassifier(max_depth=max_depth).fit(Xtr, ytr)
+
+	ypred_tree = tree.predict(Xtr)
+	acc_tree = (ypred_tree == ytr).mean()
+
+	print(f'accuracy = {acc_tree}')
 
 	return tree, acc_tree
 
 
 def trainRandomForest(train_data, test_data):
-	Xtr, ytr = train_data[:,:-1], train_data[:,-1]
-	Xte, yte = test_data[:,:-1], test_data[:,-1]
+	Xtr, ytr = train_data[:, :-1], train_data[:, -1]
+	Xte, yte = test_data[:, :-1], test_data[:, -1]
 
 	rf = RandomForestClassifier().fit(Xtr, ytr)
-	
+
 	ypred_rf = rf.predict(Xte)
 
 	acc_rf = (ypred_rf == yte).mean()
@@ -215,12 +202,12 @@ def trainRandomForest(train_data, test_data):
 	return rf, acc_rf
 
 
-def mixTrainTest(train_data, test_data, splitRatio = 0.25):
+def mixTrainTest(train_data, test_data, splitRatio=0.25):
 	full_data = np.concatenate((train_data, test_data))
-	Xfull, yfull = full_data[:,:-1], full_data[:,-1]
-	Xtr, Xte, ytr, yte = train_test_split(Xfull, yfull, test_size=splitRatio, random_state = 0)
-	train_data_mix = np.concatenate((Xtr, ytr.reshape(int(12800*(1-splitRatio)),1)),axis=1)
-	test_data_mix = np.concatenate((Xte, yte.reshape(int(12800*splitRatio),1)),axis=1)
+	Xfull, yfull = full_data[:, :-1], full_data[:, -1]
+	Xtr, Xte, ytr, yte = train_test_split(Xfull, yfull, test_size=splitRatio, random_state=0)
+	train_data_mix = np.concatenate((Xtr, ytr.reshape(int(12800*(1-splitRatio)), 1)), axis=1)
+	test_data_mix = np.concatenate((Xte, yte.reshape(int(12800*splitRatio), 1)), axis=1)
 	return train_data_mix, test_data_mix
 
 

@@ -1,16 +1,20 @@
 import os
 import numpy as np
 import train_trees
+from copy import deepcopy
 import create_top_level_entities
 from datetime import datetime
 
 
-TREE_FILES_PATH = 'c50_files/files'
+DIRECTORY = 'temp'
 
 
 class RunAll(object):
-    def __init__(self, base_name):
+    def __init__(self, base_name, xtr, ytr, feature_names):
         self.base_name = base_name
+        self.xtr = xtr
+        self.ytr = ytr
+        self.feature_names = feature_names
 
     def run(self):
         try:
@@ -25,24 +29,17 @@ class RunAll(object):
         return acc
 
     def make_eqn_file(self):
-        print('1')
-        _train_data = np.loadtxt(f'{TREE_FILES_PATH}/{self.base_name}_temp.data', dtype='int', delimiter=',')
-        test_data = _train_data
-        feature_names = list(map(str, list(range(_train_data.shape[1]))))
-        tree, acc_tree = train_trees.trainTree(_train_data, test_data)
-        print('2')
+        tree, acc_tree = train_trees.trainTree(self.xtr, self.ytr)
 
-        sop = train_trees.pythonizeSOP(train_trees.treeToSOP(tree, feature_names))
-        print('3')
+        sop = train_trees.pythonizeSOP(train_trees.treeToSOP(tree, self.feature_names))
 
-        x_amt = len(_train_data[0]) - 1
+        x_amt = len(self.feature_names)
         sop_header = 'INORDER = '
         sop_header += ' '.join([f'x{i:02d}' for i in range(x_amt)]) + ';\nOUTORDER = z0;\nz0 = '
         sop = sop_header + sop + ';'
 
         with open(f'sop/{self.base_name}.eqn', 'w') as fout:
             print(sop, file=fout)
-        print(sop)
 
     def make_aig_from_eqn(self):
         print(f'make_aig_from_eqn ({self.base_name})')
