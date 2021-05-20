@@ -19,7 +19,12 @@ def main():
         os.mkdir(f'verilog/{original_base_name}')
 
         # number_of_outputs = split_and_collapse(path)
-        split_and_collapse(path)
+        try:
+            split_and_collapse(path)
+        except Exception as e:
+            print(e)
+            continue
+
         x, y = np.loadtxt(f'temp/{path}', dtype='str', comments=".", skiprows=1, unpack=True)
         x = [list(_x) for _x in x]
         x = np.asarray(x).astype('uint8')
