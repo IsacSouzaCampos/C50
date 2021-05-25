@@ -45,9 +45,10 @@ def main():
             except Exception as e:
                 errors.append((base_name, e))
 
-        # create_top_level_entities.create_top_level_entity(original_base_name)
+        create_top_level_entities.create_top_level_entity(original_base_name)
+        run_all.RunAll(original_base_name).compile_verilog()
 
-        # os.system('rm temp/*.pla')
+        # os.system('rm -f temp/*.pla')
 
     open('errors.csv', 'x').close()
     errors_output = open('errors.csv', 'w')
@@ -77,8 +78,8 @@ def initialize():
 
 
 def clear():
-    os.system('rm c50_files/files/* trees/* temp/* pos/* pos/aig/* sop/* aig/* nohup* *.csv')
-    os.system('rm -r verilog/* mltest/*')
+    os.system('rm -f c50_files/files/* trees/* temp/* pos/* pos/aig/* sop/* aig/* nohup* *.csv')
+    os.system('rm -f -r verilog/* mltest/*')
 
 
 def split_and_collapse(_path):

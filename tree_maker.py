@@ -14,6 +14,6 @@ class TreeMaker(object):
             if int(lines[9].split()[1]) < 64:
                 remove = True
         if remove:
-            os.system('rm trees/' + base_name + '.tree')
+            os.system('rm -f trees/' + base_name + '.tree')
         else:
             print(f'{base_name}.tree FILE CREATED')

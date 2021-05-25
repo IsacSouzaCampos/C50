@@ -10,7 +10,7 @@ DIRECTORY = 'temp'
 
 
 class RunAll(object):
-    def __init__(self, base_name, xtr, ytr, feature_names):
+    def __init__(self, base_name, xtr=list(), ytr=list(), feature_names=list()):
         self.base_name = base_name
         self.xtr = xtr
         self.ytr = ytr
@@ -110,7 +110,15 @@ class RunAll(object):
         print(f'{verilog_file} CREATED')
 
     def compile_verilog(self):
-        os.system(f'quartus_map verilog/{self.base_name.split("_out_")[0]}/{self.base_name}')
-        os.system(f'quartus_fit verilog/{self.base_name.split("_out_")[0]}/{self.base_name}')
-        os.system(f'quartus_sta verilog/{self.base_name.split("_out_")[0]}/{self.base_name}')
-        os.system(f'quartus_eda verilog/{self.base_name.split("_out_")[0]}/{self.base_name}')
+        path = f'verilog/{self.base_name}/{self.base_name}'
+        print(f'quartus_map --read_settings_files=on --write_settings_files=off {path} -c {path}')
+        os.system(f'quartus_map --read_settings_files=on --write_settings_files=off {path} -c {path}')
+        os.system(f'quartus_fit --read_settings_files=off --write_settings_files=off {path} -c {path}')
+        os.system(f'quartus_asm --read_settings_files=off --write_settings_files=off {path} -c {path}')
+        os.system(f'quartus_sta {path} -c {path}')
+        os.system(f'quartus_eda --read_settings_files=off --write_settings_files=off {path} -c {path}')
+
+        # os.system(f'quartus_map verilog/{self.base_name.split("_out_")[0]}/{self.base_name}')
+        # os.system(f'quartus_fit verilog/{self.base_name.split("_out_")[0]}/{self.base_name}')
+        # os.system(f'quartus_sta verilog/{self.base_name.split("_out_")[0]}/{self.base_name}')
+        # os.system(f'quartus_eda verilog/{self.base_name.split("_out_")[0]}/{self.base_name}')
