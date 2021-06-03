@@ -20,7 +20,7 @@ class RunAll(object):
         try:
             self.make_eqn_file()
             self.make_aig_from_eqn()
-            acc = self.extract_data()
+            acc = self.extract_aig_data()
             self.make_verilog()
             # self.compile_verilog()
         except Exception as e:
@@ -54,8 +54,8 @@ class RunAll(object):
         except Exception as e:
             raise Exception(f'Error 4: {e}')
 
-    def extract_data(self):
-        print(f'extract_data ({self.base_name})')
+    def extract_aig_data(self):
+        print(f'extract_aig_data ({self.base_name})')
         with open('temp/mltest_script', 'w') as fout:
             print(f'&r aig/{self.base_name}.aig; &ps; &mltest temp/{self.base_name.replace("_temp", "")}.pla',
                   file=fout)
@@ -122,3 +122,13 @@ class RunAll(object):
         # os.system(f'quartus_fit verilog/{self.base_name.split("_out_")[0]}/{self.base_name}')
         # os.system(f'quartus_sta verilog/{self.base_name.split("_out_")[0]}/{self.base_name}')
         # os.system(f'quartus_eda verilog/{self.base_name.split("_out_")[0]}/{self.base_name}')
+    
+    def extract_synthesis_data(self):
+        with open(f'verilog/{self.base_name}/output_files/{self.base_name}.flow.rpt', 'r') as fin, open(f'verilog/{self.base_name}/synthesis_results.txt', 'w') as fout:
+            for line in fin.readlines():
+                if 'Logic utilization' in line:
+                    print(f'Logic utilization: {line.split(";")[2].strip()}', file=fout)
+                elif 'Total pins' in line:
+                    print(f'Total pins: {line.split(";")[2].strip()}', file=fout)
+                    break
+
