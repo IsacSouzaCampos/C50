@@ -111,12 +111,11 @@ class RunAll(object):
 
     def compile_verilog(self):
         path = f'verilog/{self.base_name}/{self.base_name}'
-        print(f'quartus_map --read_settings_files=on --write_settings_files=off {path} -c {path}')
-        os.system(f'quartus_map --read_settings_files=on --write_settings_files=off {path} -c {path}')
-        os.system(f'quartus_fit --read_settings_files=off --write_settings_files=off {path} -c {path}')
-        os.system(f'quartus_asm --read_settings_files=off --write_settings_files=off {path} -c {path}')
-        os.system(f'quartus_sta {path} -c {path}')
-        os.system(f'quartus_eda --read_settings_files=off --write_settings_files=off {path} -c {path}')
+        os.system(f'/home/familia/intelFPGA_lite/20.1/quartus/bin/quartus_map {path}')
+        os.system(f'/home/familia/intelFPGA_lite/20.1/quartus/bin/quartus_fit {path}')
+        os.system(f'/home/familia/intelFPGA_lite/20.1/quartus/bin/quartus_asm {path}')
+        os.system(f'/home/familia/intelFPGA_lite/20.1/quartus/bin/quartus_sta {path}')
+        os.system(f'/home/familia/intelFPGA_lite/20.1/quartus/bin/quartus_eda {path}')
 
         # os.system(f'quartus_map verilog/{self.base_name.split("_out_")[0]}/{self.base_name}')
         # os.system(f'quartus_fit verilog/{self.base_name.split("_out_")[0]}/{self.base_name}')
@@ -124,7 +123,7 @@ class RunAll(object):
         # os.system(f'quartus_eda verilog/{self.base_name.split("_out_")[0]}/{self.base_name}')
     
     def extract_synthesis_data(self):
-        with open(f'verilog/{self.base_name}/output_files/{self.base_name}.flow.rpt', 'r') as fin, open(f'verilog/{self.base_name}/synthesis_results.txt', 'w') as fout:
+        with open(f'verilog/{self.base_name}/{self.base_name}.flow.rpt', 'r') as fin, open(f'verilog/{self.base_name}/synthesis_results.txt', 'w') as fout:
             for line in fin.readlines():
                 if 'Logic utilization' in line:
                     print(f'Logic utilization: {line.split(";")[2].strip()}', file=fout)

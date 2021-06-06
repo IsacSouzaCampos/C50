@@ -46,7 +46,7 @@ def main():
                 errors.append((base_name, e))
 
         create_top_level_entities.create_top_level_entity(original_base_name)
-        # run_all.RunAll(original_base_name).compile_verilog()
+        run_all.RunAll(original_base_name).compile_verilog()
         run_all.RunAll(original_base_name).extract_synthesis_data()
 
         # os.system('rm -f temp/*.pla')
