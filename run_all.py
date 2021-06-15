@@ -18,9 +18,9 @@ class RunAll(object):
 
     def run(self):
         try:
-            self.make_eqn_file()
+            acc = self.make_eqn_file()
             self.make_aig_from_eqn()
-            acc = self.extract_aig_data()
+            acc = self.extract_aig_data(acc)
             self.make_verilog()
             # self.compile_verilog()
         except Exception as e:
@@ -40,6 +40,8 @@ class RunAll(object):
 
         with open(f'sop/{self.base_name}.eqn', 'w') as fout:
             print(sop, file=fout)
+        
+        return acc_tree
 
     def make_aig_from_eqn(self):
         print(f'make_aig_from_eqn ({self.base_name})')
@@ -54,7 +56,7 @@ class RunAll(object):
         except Exception as e:
             raise Exception(f'Error 4: {e}')
 
-    def extract_aig_data(self):
+    def extract_aig_data(self, acc):
         print(f'extract_aig_data ({self.base_name})')
         with open('temp/mltest_script', 'w') as fout:
             print(f'&r aig/{self.base_name}.aig; &ps; &mltest temp/{self.base_name.replace("_temp", "")}.pla',
@@ -75,20 +77,10 @@ class RunAll(object):
                 
                 ands = mltest_lines[3].split()[8][:-4]
                 levs = mltest_lines[3].split()[11][:-4]
-                try:
-                    acc = mltest_lines[5].split()[9].replace('(', '')
-                    if acc == '':
-                        acc = mltest_lines[5].split()[10]
-                except:
-                    if 'is not divisible by 64' in mltest_lines[4]:
-                        acc = 'n_lines < 64'
-                    else:
-                        acc = 'Error'
                 
-                finally:
-                    results = f'{self.base_name},{ands},{levs},{acc}'
-                    table_results.append(results + '\n')
-                    fout.writelines(table_results)
+                results = f'{self.base_name},{ands},{levs},{acc * 100}'
+                table_results.append(results + '\n')
+                fout.writelines(table_results)
         except Exception as e:
             raise Exception(f'Error 7: {e}')
 
