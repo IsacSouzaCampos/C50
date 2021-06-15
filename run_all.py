@@ -64,25 +64,30 @@ class RunAll(object):
         os.system('./abc -F temp/mltest_script > ' + mltest_out)
 
         try:
-            with open('sop_table_results.csv', 'r') as fin:
+            with open('aig_table_results.csv', 'r') as fin:
                 table_results = fin.readlines()
         except Exception as e:
             raise Exception(f'Error 5: {e}')
 
         try:
-            with open('sop_table_results.csv', 'w') as fout, open(mltest_out, 'r') as fin:
+            with open('aig_table_results.csv', 'w') as fout, open(mltest_out, 'r') as fin:
                 mltest_lines = fin.readlines()
+                
+                ands = mltest_lines[3].split()[8][:-4]
+                levs = mltest_lines[3].split()[11][:-4]
                 try:
-                    ands = mltest_lines[3].split()[8][:-4]
-                    levs = mltest_lines[3].split()[11][:-4]
                     acc = mltest_lines[5].split()[9].replace('(', '')
                     if acc == '':
                         acc = mltest_lines[5].split()[10]
+                except:
+                    if 'is not divisible by 64' in mltest_lines[4]:
+                        acc = 'n_lines < 64'
+                    else:
+                        acc = 'Error'
+                
+                finally:
                     results = f'{self.base_name},{ands},{levs},{acc}'
                     table_results.append(results + '\n')
-                except Exception as e:
-                    raise Exception(f'Error 6: {e}')
-                finally:
                     fout.writelines(table_results)
         except Exception as e:
             raise Exception(f'Error 7: {e}')
@@ -110,12 +115,14 @@ class RunAll(object):
         print(f'{verilog_file} CREATED')
 
     def compile_verilog(self):
+        import socket
+        hostname = socket. gethostname()
         path = f'verilog/{self.base_name}/{self.base_name}'
-        os.system(f'/home/familia/intelFPGA_lite/20.1/quartus/bin/quartus_map {path}')
-        os.system(f'/home/familia/intelFPGA_lite/20.1/quartus/bin/quartus_fit {path}')
-        os.system(f'/home/familia/intelFPGA_lite/20.1/quartus/bin/quartus_asm {path}')
-        os.system(f'/home/familia/intelFPGA_lite/20.1/quartus/bin/quartus_sta {path}')
-        os.system(f'/home/familia/intelFPGA_lite/20.1/quartus/bin/quartus_eda {path}')
+        os.system(f'/home/{hostname}/intelFPGA_lite/20.1/quartus/bin/quartus_map {path}')
+        os.system(f'/home/{hostname}/intelFPGA_lite/20.1/quartus/bin/quartus_fit {path}')
+        os.system(f'/home/{hostname}/intelFPGA_lite/20.1/quartus/bin/quartus_asm {path}')
+        os.system(f'/home/{hostname}/intelFPGA_lite/20.1/quartus/bin/quartus_sta {path}')
+        os.system(f'/home/{hostname}/intelFPGA_lite/20.1/quartus/bin/quartus_eda {path}')
 
         # os.system(f'quartus_map verilog/{self.base_name.split("_out_")[0]}/{self.base_name}')
         # os.system(f'quartus_fit verilog/{self.base_name.split("_out_")[0]}/{self.base_name}')

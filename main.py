@@ -44,12 +44,14 @@ def main():
                 graphic_data.append((base_name, acc))
             except Exception as e:
                 errors.append((base_name, e))
+        try:
+            create_top_level_entities.create_top_level_entity(original_base_name)
+            run_all.RunAll(original_base_name).compile_verilog()
+            run_all.RunAll(original_base_name).extract_synthesis_data()
+        except Exception as e:
+            print(e)
 
-        create_top_level_entities.create_top_level_entity(original_base_name)
-        run_all.RunAll(original_base_name).compile_verilog()
-        run_all.RunAll(original_base_name).extract_synthesis_data()
-
-        # os.system('rm -f temp/*.pla')
+        os.system('rm -f temp/*.pla')
 
     open('errors.csv', 'x').close()
     errors_output = open('errors.csv', 'w')
@@ -75,7 +77,7 @@ def initialize():
         os.mkdir('mltest')
 
     clear()
-    open('sop_table_results.csv', 'x').close()
+    open('aig_table_results.csv', 'x').close()
 
 
 def clear():
@@ -89,6 +91,7 @@ def split_and_collapse(_path):
             for line in fin.readlines():
                 if '.i' in line:
                     if int(line.split(' ')[1]) > 16:
+                        os.system(f'rm -rf verilog/{_path.replace(".pla", "")}')
                         raise Exception('Numero de inputs superior a 16')
                     else:
                         break
