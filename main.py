@@ -3,6 +3,7 @@ import run_all
 import create_top_level_entities
 import numpy as np
 
+benchmark_dir = 'Benchmarks'
 
 def main():
     initialize()
@@ -10,15 +11,20 @@ def main():
     errors = []
     graphic_data = []
 
-    benchmarck_dir = 'Benchmarks'
-    for path in os.listdir(benchmarck_dir):
+    for path in os.listdir('Benchmarks'):
         if '.pla' not in path:
             continue
-
+        
+        if path[0].isnumeric():
+            os.system(f'mv Benchmarks/{path} Benchmarks/ls_{path}')
+            path = f'ls_{path}'
+        if '-' in path:
+            os.system(f'mv Benchmarks/{path} Benchmarks/{path.replace("-", "_")}')
+            path = path.replace('-', '_')
+        
         original_base_name = path.replace('.pla', '')
         os.mkdir(f'verilog/{original_base_name}')
-
-        # number_of_outputs = split_and_collapse(path)
+        
         try:
             split_and_collapse(path)
         except Exception as e:
@@ -96,7 +102,7 @@ def split_and_collapse(_path):
                     else:
                         break
         with open('temp/collapse_script', 'w') as fout:
-            print('read_pla Benchmarks/' + _path + f'; collapse; write_pla -m temp/{_path}', file=fout)
+            print(f'read_pla Benchmarks/' + _path + f'; collapse; write_pla -m temp/{_path}', file=fout)
         os.system('./abc -F temp/collapse_script')
 
         number_of_outputs = 0
@@ -127,3 +133,4 @@ def split_and_collapse(_path):
 
 if __name__ == '__main__':
     main()
+
